@@ -38,6 +38,10 @@
 }
 .popover .popover-title{
     background-color: #009688;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Tags Input*/
@@ -54,6 +58,15 @@
     color: rgb(141, 136, 136);
 }
 
+/* Tables */
+
+.table tbody tr td{
+    vertical-align: middle;
+}
+
+.table tbody tr td > *{
+    margin: 0;
+}
 
 
 

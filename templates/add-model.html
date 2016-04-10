@@ -1,56 +1,61 @@
 <div class="container" ng-controller="addModelCtrl" nv-file-drop uploader="uploader" filters="queueLimit, customFilter">
     
-   <h3>Subir Modelos</h3>
-   <p>Cola de Archivos: {{ uploader.queue.length }}</p>
+    <div class="page-header">
+        <h2>Subir Modelos <small>Cola de Archivos: {{ uploader.queue.length }}</small></h2>
+    </div>
    
    <!-- Alerts -->
    <uib-alert class="repeat-alert" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout='4000'>{{alert.msg}}</uib-alert>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="50%">Name</th>
-                <th ng-show="uploader.isHTML5">Size</th>
-                <th ng-show="uploader.isHTML5">Progress</th>
-                <th>Status</th>
-                <th>Tags</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="item in uploader.queue">
-                <td><strong>{{ item.file.name }}</strong></td>
-                <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
-                <td ng-show="uploader.isHTML5">
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
-                    </div>
-                </td>
-                <td class="text-center">
-                    <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
-                    <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
-                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
-                </td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas" ng-click="uploadTags(item)">
-                        <span class="glyphicon glyphicon-tags"></span>&nbsp;4
-                    </button>
-                </td>
-                <td nowrap>
-                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
-                       <span class="glyphicon glyphicon-upload"></span> Upload
-                    </button>
-                    <button type="button" class="btn btn-raised btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
-                       <span class="glyphicon glyphicon-ban-circle"></span> Cancel
-                    </button>
-                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="item.remove()">
-                        <span class="glyphicon glyphicon-trash"></span> Remove
-                    </button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="row">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th width="50%">Name</th>
+                    <th ng-show="uploader.isHTML5">Size</th>
+                    <th ng-show="uploader.isHTML5">Progress</th>
+                    <th>Status</th>
+                    <th>Tags</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="info" ng-if="!uploader.queue.length">
+                    <td class='text-center' colspan='6'>Arrastra un fichero o presiona el botón subir</td>
+                </tr>
+                <tr ng-repeat="item in uploader.queue">
+                    <td><strong>{{ item.file.name }}</strong></td>
+                    <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                    <td ng-show="uploader.isHTML5">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                        <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+                        <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas para {{item.file.name}}" ng-click="uploadTags(item)">
+                            <span class="glyphicon glyphicon-tags"></span>&nbsp;4
+                        </button>
+                    </td>
+                    <td nowrap>
+                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+                        <span class="glyphicon glyphicon-upload"></span> Upload
+                        </button>
+                        <button type="button" class="btn btn-raised btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                        <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+                        </button>
+                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="item.remove()">
+                            <span class="glyphicon glyphicon-trash"></span> Remove
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row" ng-if='uploader.queue.length'>
         <div class="col-xs-12">
             Progreso de la cola:
             <div class="progress">
