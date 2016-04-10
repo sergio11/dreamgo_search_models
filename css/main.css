@@ -30,6 +30,50 @@
     z-index: 999;
 }
 
+/* Popovers */
+
+.popover{
+    background-color: #fff !important;
+    min-width: 200px;
+}
+.popover .popover-title{
+    background-color: #009688;
+}
+
+/* Tags Input*/
+
+.tags .tag-list .tag-item{
+    background-color: #009688 !important;
+}
+
+.tags .tag-list .tag-item .remove-button{
+    color: #fff;
+}
+
+.tags .tag-list + .input{
+    color: rgb(141, 136, 136);
+}
+
+
+
+
+/* Alerts */
+
+.repeat-alert.ng-enter,
+.repeat-alert.ng-leave {
+    -webkit-transition: 0.5s linear all;
+    transition: 0.5s linear all;
+}
+
+.repeat-alert.ng-enter,
+.repeat-alert.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+
+.repeat-alert.ng-leave,
+.repeat-alert.ng-enter.ng-enter-active {
+    opacity: 1;
+}
 
 
 

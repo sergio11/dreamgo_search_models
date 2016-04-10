@@ -2,6 +2,9 @@
     
    <h3>Subir Modelos</h3>
    <p>Cola de Archivos: {{ uploader.queue.length }}</p>
+   
+   <!-- Alerts -->
+   <uib-alert class="repeat-alert" ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)" dismiss-on-timeout='4000'>{{alert.msg}}</uib-alert>
 
     <table class="table">
         <thead>
@@ -29,23 +32,18 @@
                     <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
                 </td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas">
+                    <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas" ng-click="uploadTags(item)">
                         <span class="glyphicon glyphicon-tags"></span>&nbsp;4
                     </button>
                 </td>
-                <script type="text/ng-template" id="tags-input.html">
-                    <div class="input-group">
-                        <tags-input ng-model="tags"></tags-input>
-                    </div>
-                </script>
                 <td nowrap>
-                    <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
                        <span class="glyphicon glyphicon-upload"></span> Upload
                     </button>
-                    <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                    <button type="button" class="btn btn-raised btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
                        <span class="glyphicon glyphicon-ban-circle"></span> Cancel
                     </button>
-                    <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="item.remove()">
                         <span class="glyphicon glyphicon-trash"></span> Remove
                     </button>
                 </td>
@@ -64,24 +62,42 @@
     </div>
     <div>
         <div class="pull-left">
-            <span class="btn btn-default btn-file">
+            <span class="btn btn-raised btn-primary btn-file">
                 <span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Subir 
                 <input type="file" nv-file-select uploader="uploader">
             </span>
         </div>
         <div class="pull-right">
-            <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+            <button type="button" class="btn btn-raised btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
                 <span class="glyphicon glyphicon-upload"></span> Upload all
             </button>
-            <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
+            <button type="button" class="btn btn-raised btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
                 <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
             </button>
-            <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
+            <button type="button" class="btn btn-raised btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
                 <span class="glyphicon glyphicon-trash"></span> Remove all
             </button>
             
         </div>
     </div>
+    
+    <!-- ng templates -->
+    
+    <script type="text/ng-template" id="tags-input.html">
+        <div>
+            <div>
+                <tags-input ng-model="tags"></tags-input>
+            </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!tags.length">
+                    <span class="glyphicon glyphicon-ok"></span>
+                </button>
+                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!tags.length">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </div>
+         </div>
+    </script>
     
 </div>
 
