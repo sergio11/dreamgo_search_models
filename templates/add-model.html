@@ -1,9 +1,8 @@
 <div class="container" ng-controller="addModelCtrl" nv-file-drop uploader="uploader" filters="queueLimit, customFilter">
-    <h3>Subir Modelos</h3>
-    <p>Cola de Archivos: {{ uploader.queue.length }}</p>
-    <span class="btn btn-default btn-file">
-        Browse <input type="file" nv-file-select uploader="uploader">
-    </span>
+    
+   <h3>Subir Modelos</h3>
+   <p>Cola de Archivos: {{ uploader.queue.length }}</p>
+
     <table class="table">
         <thead>
             <tr>
@@ -30,10 +29,15 @@
                     <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
                 </td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-info btn-xs" uib-popover-template="{{popoverTemplate}}">
+                    <button type="button" class="btn btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas">
                         <span class="glyphicon glyphicon-tags"></span>&nbsp;4
                     </button>
                 </td>
+                <script type="text/ng-template" id="tags-input.html">
+                    <div class="input-group">
+                        <tags-input ng-model="tags"></tags-input>
+                    </div>
+                </script>
                 <td nowrap>
                     <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
                        <span class="glyphicon glyphicon-upload"></span> Upload
@@ -48,31 +52,37 @@
             </tr>
         </tbody>
     </table>
-    <div>
-        <div>
+    <div class="row">
+        <div class="col-xs-12">
             Progreso de la cola:
             <div class="progress">
-                <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }"></div>
+                <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }">
+                    <span class="sr-only">{{uploader.progress}} % Complete (success)</span>
+                </div>
             </div>
         </div>
-        <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
-            <span class="glyphicon glyphicon-upload"></span> Upload all
-        </button>
-        <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
-            <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
-        </button>
-        <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
-            <span class="glyphicon glyphicon-trash"></span> Remove all
-        </button>
     </div>
-    <script type="text/ng-template" id="tags-input.html">
-        <div class="input-group">
-            <div class="input-group-addon">
-                <span class="glyphicon glyphicon-tags"></span>
-            </div>
-            <tags-input ng-model="tags" class="ti-input-lg"></tags-input>
+    <div>
+        <div class="pull-left">
+            <span class="btn btn-default btn-file">
+                <span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Subir 
+                <input type="file" nv-file-select uploader="uploader">
+            </span>
         </div>
-    </script>
+        <div class="pull-right">
+            <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+                <span class="glyphicon glyphicon-upload"></span> Upload all
+            </button>
+            <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
+                <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+            </button>
+            <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
+                <span class="glyphicon glyphicon-trash"></span> Remove all
+            </button>
+            
+        </div>
+    </div>
+    
 </div>
 
     

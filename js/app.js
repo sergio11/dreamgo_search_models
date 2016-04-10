@@ -28,8 +28,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             { text: 'Tag3' }
         ];
 
-        $scope.popoverTemplate = "tags-input.html";
-
         // Upload custom filter
         uploader.filters.push({
             name: 'customFilter',
