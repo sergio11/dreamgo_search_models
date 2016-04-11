@@ -16,18 +16,18 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             })
 
     } ])
-    .controller('addModelCtrl', ['$scope', '$http', 'FileUploader', function($scope, $http, FileUploader){
-        
+    .controller('addModelCtrl', ['$scope', '$http', 'FileUploader', function ($scope, $http, FileUploader) {
+
         $scope.alerts = [];
-        $scope.tags = [];
+        $scope.fileTags = {};
         $scope.uploader = new FileUploader({
-            url: 'upload.php'
-        })
+            url: 'http://localhost/modelos/web/index.php/api/v1/models'
+        });
 
         // Upload custom filter
         $scope.uploader.filters.push({
             name: 'xmlFilter',
-            fn: function(item /*{File|FileLikeObject}*/, options) {
+            fn: function (item /*{File|FileLikeObject}*/, options) {
                 var excel_mime_types = [
                     'application/vnd.ms-excel',
                     'application/msexcel',
@@ -39,65 +39,76 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                     'application/x-xls',
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 ]
-                return true;
-                //return excel_mime_types.indexOf(item.type) >= 0;
+                return excel_mime_types.indexOf(item.type) >= 0;
                 //return this.queue.length < 10;
             }
         });
-        
-        
-        
-        $scope.closeAlert = function(index) {
+
+        $scope.closeAlert = function (index) {
             $scope.alerts.splice(index, 1);
         };
-        
-        $scope.uploadTags = function(item){
-            console.log("Upload Tags : " , item);
+
+        //Save model tags
+        $scope.saveTags = function (key) {
+            if ($scope.fileTags && $scope.fileTags[key]) {
+                var tags = $scope.fileTags[key].tags;
+                $http.post('http://localhost/modelos/web/index.php/api/v1/terms', {'tags': tags}).then(function(response){
+                    console.log("Respuesta : ", response);
+                });
+            }
         }
 
-        
+        //Drop Model Tags
+        $scope.dropTags = function (key) {
+            if ($scope.fileTags && $scope.fileTags[key]) {
+                var tags = $scope.fileTags[key].tags;
+                tags.splice(0, tags.length);
+            }
+        }
 
         // File adding failed.
-        $scope.uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
+        $scope.uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
             var msg = null;
-            if(filter.name == 'xmlFilter'){
+            if (filter.name == 'xmlFilter') {
                 msg = "Sólo puede adjuntar ficheros xls"
             }
-            $scope.alerts.push({type: 'danger', msg: msg});
+            $scope.alerts.push({ type: 'danger', msg: msg });
         };
-        
-        
-        $scope.uploader.onAfterAddingFile = function(fileItem) {
+        //File upload success
+        $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
+            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [] };
+        };
+
+
+        $scope.uploader.onAfterAddingFile = function (fileItem) {
             console.info('onAfterAddingFile', fileItem);
         };
-        $scope.uploader.onAfterAddingAll = function(addedFileItems) {
+        $scope.uploader.onAfterAddingAll = function (addedFileItems) {
             console.info('onAfterAddingAll', addedFileItems);
         };
-        $scope.uploader.onBeforeUploadItem = function(item) {
+        $scope.uploader.onBeforeUploadItem = function (item) {
             console.info('onBeforeUploadItem', item);
         };
-        $scope.uploader.onProgressItem = function(fileItem, progress) {
+        $scope.uploader.onProgressItem = function (fileItem, progress) {
             console.info('onProgressItem', fileItem, progress);
         };
-        $scope.uploader.onProgressAll = function(progress) {
+        $scope.uploader.onProgressAll = function (progress) {
             console.info('onProgressAll', progress);
         };
-        $scope.uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        $scope.uploader.onSuccessItem = function (fileItem, response, status, headers) {
             console.info('onSuccessItem', fileItem, response, status, headers);
         };
-        $scope.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        $scope.uploader.onErrorItem = function (fileItem, response, status, headers) {
             console.info('onErrorItem', fileItem, response, status, headers);
         };
-        $scope.uploader.onCancelItem = function(fileItem, response, status, headers) {
+        $scope.uploader.onCancelItem = function (fileItem, response, status, headers) {
             console.info('onCancelItem', fileItem, response, status, headers);
         };
-        $scope.uploader.onCompleteItem = function(fileItem, response, status, headers) {
-            console.info('onCompleteItem', fileItem, response, status, headers);
-        };
-        $scope.uploader.onCompleteAll = function() {
+
+        $scope.uploader.onCompleteAll = function () {
             console.info('onCompleteAll');
         };
-        
-        
 
-    }]);
+
+
+    } ]);

@@ -1,2 +1,4 @@
-/bower_components/*
-browserconfig.xml
+public/bower_components/
+storage/
+tmp/
+vendor/

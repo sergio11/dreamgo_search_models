@@ -36,8 +36,8 @@
                         <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas para {{item.file.name}}" ng-click="uploadTags(item)">
-                            <span class="glyphicon glyphicon-tags"></span>&nbsp;4
+                        <button type="button" ng-disabled="!item.isSuccess" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas para {{item.file.name}}">
+                            <span class="glyphicon glyphicon-tags"></span>
                         </button>
                     </td>
                     <td nowrap>
@@ -91,13 +91,13 @@
     <script type="text/ng-template" id="tags-input.html">
         <div>
             <div>
-                <tags-input ng-model="tags"></tags-input>
+                <tags-input ng-model="fileTags[item.$$hashKey].tags"></tags-input>
             </div>
             <div class="text-center">
-                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!tags.length">
+                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length"  ng-click="saveTags(item.$$hashKey)">
                     <span class="glyphicon glyphicon-ok"></span>
                 </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!tags.length">
+                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length" ng-click="dropTags(item.$$hashKey)">
                     <span class="glyphicon glyphicon-remove"></span>
                 </button>
             </div>
