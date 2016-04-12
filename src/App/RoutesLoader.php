@@ -31,8 +31,13 @@ class RoutesLoader
 
         //GET Model
         $api->get('/models', "models.controller:getAll");
+        $api->get('/models/{start}/{count}', "models.controller:get");
         //POST Model
         $api->post('/models', "models.controller:save");
+        //GET Model Tags
+        $api->get('/models/{model}/tags', "models.controller:getTags");
+        //POST Model Tags
+        $api->post('/models/{model}/tags', "models.controller:saveTags");
         //POST Term
         $api->post('/terms', "terms.controller:save");
 

@@ -1,7 +1,7 @@
 <div class="container" ng-controller="addModelCtrl" nv-file-drop uploader="uploader" filters="queueLimit, customFilter">
     
     <div class="page-header">
-        <h2>Subir Modelos <small>Cola de Archivos: {{ uploader.queue.length }}</small></h2>
+        <h2>Upload Models <small>Spooled files: {{ uploader.queue.length }}</small></h2>
     </div>
    
    <!-- Alerts -->
@@ -20,7 +20,7 @@
             </thead>
             <tbody>
                 <tr class="info" ng-if="!uploader.queue.length">
-                    <td class='text-center' colspan='6'>Arrastra un fichero o presiona el botón subir</td>
+                    <td class='text-center' colspan='6'>Drag a file or press the button up</td>
                 </tr>
                 <tr ng-repeat="item in uploader.queue">
                     <td><strong>{{ item.file.name }}</strong></td>
@@ -36,7 +36,7 @@
                         <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
                     </td>
                     <td class="text-center">
-                        <button type="button" ng-disabled="!item.isSuccess" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Etiquetas para {{item.file.name}}">
+                        <button type="button" ng-disabled="!item.isSuccess" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Tags for {{item.file.name}}" ng-click="loadTags(item.$$hashKey)">
                             <span class="glyphicon glyphicon-tags"></span>
                         </button>
                     </td>
@@ -57,7 +57,7 @@
     </div>
     <div class="row" ng-if='uploader.queue.length'>
         <div class="col-xs-12">
-            Progreso de la cola:
+            Progress tail:
             <div class="progress">
                 <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }">
                     <span class="sr-only">{{uploader.progress}} % Complete (success)</span>
@@ -68,7 +68,7 @@
     <div>
         <div class="pull-left">
             <span class="btn btn-raised btn-primary btn-file">
-                <span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Subir 
+                <span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Upload file 
                 <input type="file" nv-file-select uploader="uploader">
             </span>
         </div>
@@ -91,13 +91,13 @@
     <script type="text/ng-template" id="tags-input.html">
         <div>
             <div>
-                <tags-input ng-model="fileTags[item.$$hashKey].tags"></tags-input>
+                <tags-input ng-model="fileTags[item.$$hashKey].tags" on-tag-added="fileTags[item.$$hashKey].dirty = true"></tags-input>
             </div>
             <div class="text-center">
-                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length"  ng-click="saveTags(item.$$hashKey)">
+                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty"  ng-click="saveTags(item.$$hashKey)">
                     <span class="glyphicon glyphicon-ok"></span>
                 </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length" ng-click="dropTags(item.$$hashKey)">
+                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty" ng-click="dropTags(item.$$hashKey)">
                     <span class="glyphicon glyphicon-remove"></span>
                 </button>
             </div>

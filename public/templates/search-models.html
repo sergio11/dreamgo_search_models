@@ -1,0 +1,43 @@
+<div class="container" ng-controller="searchCtrl">
+    
+    <div class="page-header">
+        <h2>Search Models <small>Total Models {{ totalModels }}</small></h2>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group label-floating">
+              <label class="control-label" for="focusedInput1">Write something to make the label float</label>
+              <input class="form-control" id="focusedInput1" type="text">
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="btn-group btn-group-justified btn-group-raised">
+                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : reverse}]" ng-click="reverse = true">Recent Files</a>
+                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : !reverse}]" ng-click="reverse = false">Old Files</a>
+            </div>
+        </div>
+
+    </div>
+    <div class="row row-separate">
+        <div class="list-group">
+            <div ng-repeat="model in models | orderBy:'createAt':reverse">
+                <div class="list-group-item" >
+                    <div class="row-action-primary">
+                        <i class="material-icons">cloud_download</i>
+                    </div>
+                    <div class="row-content">
+                        <h4 class="list-group-item-heading">{{ model.name }}</h4>
+                        <p class="list-group-item-text">Create at : {{model.createAt | date:'dd-MMM-yy HH:mm'}}  / size : {{ model.size/1024/1024|number:2}} MB </p>
+                    </div>
+                </div>
+                <div class="list-group-separator"></div>
+            </div>
+        </div>
+        <uib-pagination total-items="totalModels" ng-model="currentPage" ng-change="pageChanged()" max-size="maxSize" boundary-link-numbers="true"></uib-pagination>
+    
+    </div>
+    
+    
+    
+</div>

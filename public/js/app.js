@@ -14,14 +14,41 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 url: "/add",
                 templateUrl: "templates/add-model.html"
             })
+            .state('search', {
+                url: "/search",
+                templateUrl: "templates/search-models.html"
+            })
 
     } ])
-    .controller('addModelCtrl', ['$scope', '$http', 'FileUploader', function ($scope, $http, FileUploader) {
+    .service('ModelsService', ['$http', function ($http) {
+
+        //Save Tags for model
+        this.saveTags = function (model, tags) {
+            return $http.post('/modelos/web/index.php/api/v1/terms', { 'tags': tags })
+                .then(function (response) {
+                    var data = response.data;
+                    if (!data.error && data.ids.length) {
+                        return $http.post('/modelos/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
+                    }
+
+                });
+        }
+        //Get tags for model
+        this.getTags = function (model) {
+            return $http.get('/modelos/web/index.php/api/v1/models/' + model + '/tags');
+        }
+        //Get all Models
+        this.getModels = function (start, count) {
+            return $http.get('/modelos/web/index.php/api/v1/models/' + start + '/' + count);
+        }
+
+    } ])
+    .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', function ($scope, ModelsService, FileUploader) {
 
         $scope.alerts = [];
         $scope.fileTags = {};
         $scope.uploader = new FileUploader({
-            url: 'http://localhost/modelos/web/index.php/api/v1/models'
+            url: '/modelos/web/index.php/api/v1/models'
         });
 
         // Upload custom filter
@@ -47,13 +74,23 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.closeAlert = function (index) {
             $scope.alerts.splice(index, 1);
         };
+        //Load Tags
+        $scope.loadTags = function (key) {
+            if ($scope.fileTags && $scope.fileTags[key]) {
+                var model = $scope.fileTags[key];
+                ModelsService.getTags(model.id).then(function (response) {
+                    model.tags = response.tags;
+                });
+            }
+        }
 
         //Save model tags
         $scope.saveTags = function (key) {
             if ($scope.fileTags && $scope.fileTags[key]) {
-                var tags = $scope.fileTags[key].tags;
-                $http.post('http://localhost/modelos/web/index.php/api/v1/terms', {'tags': tags}).then(function(response){
-                    console.log("Respuesta : ", response);
+                var model = $scope.fileTags[key];
+                //Save Model Tags
+                ModelsService.saveTags(model.id, model.tags).then(function (response) {
+                    model.dirty = false;
                 });
             }
         }
@@ -70,13 +107,13 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
             var msg = null;
             if (filter.name == 'xmlFilter') {
-                msg = "Sólo puede adjuntar ficheros xls"
+                msg = "You can only upload files xls"
             }
             $scope.alerts.push({ type: 'danger', msg: msg });
         };
         //File upload success
         $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [] };
+            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false };
         };
 
 
@@ -110,5 +147,26 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         };
 
 
+
+    } ])
+    .controller('searchCtrl', ['$scope', 'ModelsService', '$log', function ($scope, ModelsService, $log) {
+
+        var itemsPerPage = 8;
+        $scope.reverse = true;
+        $scope.totalModels = 600;
+        $scope.currentPage = 1;
+        $scope.maxSize = 5;
+        $scope.models = [];
+
+        $scope.pageChanged = function () {
+            $log.log('Start : ' + (itemsPerPage * $scope.currentPage + 1) + " Count : " + itemsPerPage);
+            ModelsService.getModels(itemsPerPage * $scope.currentPage + 1, itemsPerPage).then(function (response) {
+                $scope.models = response.data;
+            })
+        };
+
+        ModelsService.getModels(1, itemsPerPage).then(function (response) {
+            $scope.models = response.data;
+        });
 
     } ]);

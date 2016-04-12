@@ -1,8 +1,9 @@
 
+
 CREATE DATABASE modelos;
 use modelos;
 
-SET foreign_key_checks = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS models;
 CREATE TABLE models(
@@ -30,3 +31,5 @@ CREATE TABLE models_tagged(
             ON UPDATE CASCADE,
     CONSTRAINT modtag_pk PRIMARY KEY(idmodel,idterm)
 )ENGINE='INNODB' CHARSET=UTF8 COMMENT='Tabla Modelos Etiquetados';
+
+SET FOREIGN_KEY_CHECKS=1;

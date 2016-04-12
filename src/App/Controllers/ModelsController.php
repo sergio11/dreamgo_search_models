@@ -21,6 +21,10 @@ class ModelsController
         return new JsonResponse($this->modelsService->getAll());
     }
 
+    public function get($start,$count){
+        return new JsonResponse($this->modelsService->get($start,$count));
+    }
+
     public function save(Request $request)
     {
         $file = $request->files->get('file');
@@ -36,13 +40,21 @@ class ModelsController
 
     }
 
-    public function update($id, Request $request)
-    {
-        $note = $this->getDataFromRequest($request);
-        $this->notesService->update($id, $note);
-        return new JsonResponse($note);
+    public function saveTags(Request $request, $model){
+        $tags = $request->request->get("tags");
+        $ids = [];
+        for($i = 0, $len = count($tags); $i < $len; $i++){
+            $ids[] = $this->modelsService->saveModelTag(array('idmodel' => $model, 'idterm' => $tags[$i]));
+        }
+         return new JsonResponse(array('ids' => $ids));
 
     }
+
+    public function getTags($model){
+        $tags = $this->modelsService->getModelTags($model);
+        return new JsonResponse(array('tags' => $tags));
+    }
+
 
     public function delete($id)
     {

@@ -10,20 +10,23 @@ class ModelsService extends BaseService
         return $this->db->fetchAll("SELECT * FROM models");
     }
 
+    public function get($start,$count){
+        return $this->db->fetchAll("SELECT * FROM models LIMIT $start, $count");
+    }
+
     function save($model)
     {
         $this->db->insert("models", $model);
         return $this->db->lastInsertId();
     }
 
-    function update($id, $note)
-    {
-        return $this->db->update('notes', $note, ['id' => $id]);
+    function saveModelTag($modelTag){
+        $this->db->insert("models_tagged", $modelTag);
+        return $this->db->lastInsertId();
     }
 
-    function delete($id)
-    {
-        return $this->db->delete("notes", array("id" => $id));
+    function getModelTags($model){
+        return $this->db->fetchAll("SELECT T.id as id, T.text as text FROM terms T JOIN models_tagged MT ON (T.id = MT.idterm) WHERE MT.idmodel = $model ");
     }
 
 }
