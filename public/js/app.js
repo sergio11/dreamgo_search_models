@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload'])
+angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -153,7 +153,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
 
     } ])
-    .controller('searchCtrl', ['$scope', 'ModelsService', '$log', function ($scope, ModelsService, $log) {
+    .controller('searchCtrl', ['$scope', 'ModelsService', '$log', 'SweetAlert', function ($scope, ModelsService, $log, SweetAlert) {
 
         var itemsPerPage = 8;
         $scope.reverse = true;
@@ -169,8 +169,23 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             })
         };
         //Delete model
-        $scope.deleteModel = function () {
-               
+        $scope.deleteModel = function (idModel) {
+               SweetAlert.swal({
+                   title: "Delete this model?",
+                   text: "Are you sure you want to delete this model?",
+                   type: "warning",
+                   showCancelButton: true,
+                   confirmButtonColor: "#DD6B55",confirmButtonText: "Yes, delete it!",
+                   cancelButtonText: "No",
+                   closeOnConfirm: false,
+                   closeOnCancel: false }, 
+                function(isConfirm){ 
+                   if (isConfirm) {
+                      SweetAlert.swal("Deleted!", "Your imaginary file has been deleted.", "success");
+                   } else {
+                      SweetAlert.swal("Cancelled", "Your imaginary file is safe :)", "error");
+                   }
+              });
         }
 
         ModelsService.getCountModels().then(function (response) {
