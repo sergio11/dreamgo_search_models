@@ -14,6 +14,10 @@ class ModelsService extends BaseService
         return $this->db->fetchAll("SELECT * FROM models LIMIT $start, $count");
     }
 
+    public function count(){
+        return $this->db->executeQuery("SELECT * FROM models")->rowCount();
+    }
+
     function save($model)
     {
         $this->db->insert("models", $model);

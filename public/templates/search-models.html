@@ -4,12 +4,44 @@
         <h2>Search Models <small>Total Models {{ totalModels }}</small></h2>
     </div>
 
+    <div class="form-group label-floating">
+        <label class="control-label" for="focusedInput1">Write something to make the label float</label>
+        <input class="form-control" id="focusedInput1" type="text">
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th width="50%">Name</th>
+                    <th>Create at</th>
+                    <th>Size</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="info" ng-if="!models.length">
+                    <td class='text-center' colspan='6'>No models found</td>
+                </tr>
+                <tr ng-repeat="model in models | orderBy:'createAt':reverse">
+                    <td><strong>{{ model.name }}</strong></td>
+                    <td>{{model.createAt | date:'dd-MMM-yy HH:mm'}}</td>
+                    <td nowrap>{{ model.size/1024/1024|number:2}} MB</td>
+                    <td class="text-center" nowrap>
+                        <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Tags for {{model.name}}" ng-click="loadTags(model.id)">
+                            <span class="glyphicon glyphicon-tags"></span> Tags
+                        </button>
+                        <button type="button" class="btn btn-raised btn-danger btn-xs">
+                            <span class="glyphicon glyphicon-trash"></span> Remove
+                        </button>
+                    </td>
+                 
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="row">
         <div class="col-sm-6">
-            <div class="form-group label-floating">
-              <label class="control-label" for="focusedInput1">Write something to make the label float</label>
-              <input class="form-control" id="focusedInput1" type="text">
-            </div>
+             <uib-pagination total-items="totalModels" ng-model="currentPage" ng-change="pageChanged()" max-size="maxSize" boundary-link-numbers="true"></uib-pagination>
         </div>
         <div class="col-sm-6">
             <div class="btn-group btn-group-justified btn-group-raised">
@@ -17,26 +49,47 @@
                 <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : !reverse}]" ng-click="reverse = false">Old Files</a>
             </div>
         </div>
+    </div>
 
-    </div>
-    <div class="row row-separate">
-        <div class="list-group">
-            <div ng-repeat="model in models | orderBy:'createAt':reverse">
-                <div class="list-group-item" >
-                    <div class="row-action-primary">
-                        <i class="material-icons">cloud_download</i>
-                    </div>
-                    <div class="row-content">
-                        <h4 class="list-group-item-heading">{{ model.name }}</h4>
-                        <p class="list-group-item-text">Create at : {{model.createAt | date:'dd-MMM-yy HH:mm'}}  / size : {{ model.size/1024/1024|number:2}} MB </p>
-                    </div>
-                </div>
-                <div class="list-group-separator"></div>
-            </div>
+     <!-- ng templates -->
+
+    <script type="text/ng-template" id="deleteModel.html">
+        <div class="modal-header">
+            <h3 class="modal-title">I'm a modal!</h3>
         </div>
-        <uib-pagination total-items="totalModels" ng-model="currentPage" ng-change="pageChanged()" max-size="maxSize" boundary-link-numbers="true"></uib-pagination>
+        <div class="modal-body">
+            <ul>
+                <li ng-repeat="item in items">
+                    <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
+                </li>
+            </ul>
+            Selected: <b>{{ selected.item }}</b>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
     
-    </div>
+    <script type="text/ng-template" id="tags-input.html">
+        <div class="text-center">
+            <img src="./img/ring.gif" ng-show="!model.tagsLoaded" width="100"/>
+            <div ng-show="model.tagsLoaded">
+                <tags-input ng-model="model.tags" ></tags-input>
+                <div class="text-center">
+                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!model.tags.length">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty" ng-click="dropTags(item.$$hashKey)">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+            </div>
+            
+         </div>
+    </script>
+
+   
     
     
     

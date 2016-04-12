@@ -41,6 +41,10 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         this.getModels = function (start, count) {
             return $http.get('/modelos/web/index.php/api/v1/models/' + start + '/' + count);
         }
+        //Get Total Models
+        this.getCountModels = function () {
+            return $http.get('/modelos/web/index.php/api/v1/models/count');
+        }
 
     } ])
     .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', function ($scope, ModelsService, FileUploader) {
@@ -153,19 +157,27 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         var itemsPerPage = 8;
         $scope.reverse = true;
-        $scope.totalModels = 600;
+        $scope.totalModels = 0;
         $scope.currentPage = 1;
         $scope.maxSize = 5;
         $scope.models = [];
 
+        //Change Page
         $scope.pageChanged = function () {
-            $log.log('Start : ' + (itemsPerPage * $scope.currentPage + 1) + " Count : " + itemsPerPage);
-            ModelsService.getModels(itemsPerPage * $scope.currentPage + 1, itemsPerPage).then(function (response) {
+            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) + 1, itemsPerPage).then(function (response) {
                 $scope.models = response.data;
             })
         };
+        //Delete model
+        $scope.deleteModel = function () {
+               
+        }
 
-        ModelsService.getModels(1, itemsPerPage).then(function (response) {
+        ModelsService.getCountModels().then(function (response) {
+            $scope.totalModels = response.data;
+        })
+
+        ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) + 1, itemsPerPage).then(function (response) {
             $scope.models = response.data;
         });
 

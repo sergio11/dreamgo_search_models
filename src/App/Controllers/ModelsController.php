@@ -25,6 +25,10 @@ class ModelsController
         return new JsonResponse($this->modelsService->get($start,$count));
     }
 
+    public function count(){
+        return new JsonResponse($this->modelsService->count());
+    }
+
     public function save(Request $request)
     {
         $file = $request->files->get('file');

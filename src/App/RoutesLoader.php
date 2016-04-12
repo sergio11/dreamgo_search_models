@@ -31,6 +31,9 @@ class RoutesLoader
 
         //GET Model
         $api->get('/models', "models.controller:getAll");
+        //GET Count Models
+        $api->get('/models/count', "models.controller:count");
+        //GET Paginate Models.
         $api->get('/models/{start}/{count}', "models.controller:get");
         //POST Model
         $api->post('/models', "models.controller:save");
