@@ -89,17 +89,18 @@
     <!-- ng templates -->
     
     <script type="text/ng-template" id="tags-input.html">
-        <div>
-            <div>
+        <div class="text-center">
+            <img src="./img/ring.gif" ng-show="!fileTags[item.$$hashKey].tagsLoaded" width="100"/>
+            <div ng-show="fileTags[item.$$hashKey].tagsLoaded">
                 <tags-input ng-model="fileTags[item.$$hashKey].tags" on-tag-added="fileTags[item.$$hashKey].dirty = true"></tags-input>
-            </div>
-            <div class="text-center">
-                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty"  ng-click="saveTags(item.$$hashKey)">
-                    <span class="glyphicon glyphicon-ok"></span>
-                </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty" ng-click="dropTags(item.$$hashKey)">
-                    <span class="glyphicon glyphicon-remove"></span>
-                </button>
+                <div class="text-center">
+                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty"  ng-click="saveTags(item.$$hashKey)">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty" ng-click="dropTags(item.$$hashKey)">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
             </div>
          </div>
     </script>

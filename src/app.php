@@ -79,4 +79,7 @@ $app->error(function (\Exception $e, $code) use ($app) {
     return new JsonResponse(array("statusCode" => $code, "message" => $e->getMessage(), "stacktrace" => $e->getTraceAsString()));
 });
 
+//save upload Dir
+$app['upload_file_dir'] = ROOT_PATH . '/public/uploads/';
+
 return $app;

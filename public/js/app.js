@@ -24,35 +24,46 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/modelos/web/index.php/api/v1/terms', { 'tags': tags })
+            return $http.post('/models/web/index.php/api/v1/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/modelos/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/models/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
         }
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/modelos/web/index.php/api/v1/models/' + model + '/tags');
+            return $http.get('/models/web/index.php/api/v1/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count) {
-            return $http.get('/modelos/web/index.php/api/v1/models/' + start + '/' + count);
+            return $http.get('/models/web/index.php/api/v1/models/' + start + '/' + count);
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/modelos/web/index.php/api/v1/models/count');
+            return $http.get('/models/web/index.php/api/v1/models/count');
+        }
+        
+        this.deleteModel = function(idModel){
+            return $http.delete('/models/web/index.php/api/v1/models/'+idModel);
         }
 
     } ])
+    .service('TermsService', ['$http', function($http){
+        
+        this.getMatchingTerms = function(text){
+            return $http.get('/models/web/index.php/api/v1/terms/' + text);
+        }
+        
+    }])
     .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', function ($scope, ModelsService, FileUploader) {
 
         $scope.alerts = [];
         $scope.fileTags = {};
         $scope.uploader = new FileUploader({
-            url: '/modelos/web/index.php/api/v1/models'
+            url: '/models/web/index.php/api/v1/models'
         });
 
         // Upload custom filter
@@ -82,8 +93,9 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.loadTags = function (key) {
             if ($scope.fileTags && $scope.fileTags[key]) {
                 var model = $scope.fileTags[key];
-                ModelsService.getTags(model.id).then(function (response) {
-                    model.tags = response.tags;
+                !model.tagsLoaded && ModelsService.getTags(model.id).then(function (response) {
+                    model.tags = response.data.tags;
+                    model.tagsLoaded = true;
                 });
             }
         }
@@ -117,7 +129,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         };
         //File upload success
         $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false };
+            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false, tagsLoaded: false };
         };
 
 
@@ -153,7 +165,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
 
     } ])
-    .controller('searchCtrl', ['$scope', 'ModelsService', '$log', 'SweetAlert', function ($scope, ModelsService, $log, SweetAlert) {
+    .controller('searchCtrl', ['$scope', 'ModelsService', 'TermsService', '$log', 'SweetAlert', function ($scope, ModelsService, TermsService, $log, SweetAlert) {
 
         var itemsPerPage = 8;
         $scope.reverse = true;
@@ -161,31 +173,57 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.currentPage = 1;
         $scope.maxSize = 5;
         $scope.models = [];
+        $scope.tagsSelected = null;
 
         //Change Page
         $scope.pageChanged = function () {
             ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) + 1, itemsPerPage).then(function (response) {
+                console.log("Response data : ", response.data);
                 $scope.models = response.data;
             })
         };
         //Delete model
         $scope.deleteModel = function (idModel) {
+               
+               var idx = $scope.models.findIndex(function(model){
+                   return model.id == idModel;
+               });
+               
+               var model = $scope.models[idx];
+               
+               console.log("The Model : " , model);
+               
                SweetAlert.swal({
                    title: "Delete this model?",
-                   text: "Are you sure you want to delete this model?",
+                   text: "Are you sure you want to delete "+ model.name +" ?",
                    type: "warning",
                    showCancelButton: true,
                    confirmButtonColor: "#DD6B55",confirmButtonText: "Yes, delete it!",
                    cancelButtonText: "No",
                    closeOnConfirm: false,
-                   closeOnCancel: false }, 
-                function(isConfirm){ 
+                   closeOnCancel: false 
+                }, function(isConfirm){ 
                    if (isConfirm) {
-                      SweetAlert.swal("Deleted!", "Your imaginary file has been deleted.", "success");
-                   } else {
-                      SweetAlert.swal("Cancelled", "Your imaginary file is safe :)", "error");
+                       ModelsService.deleteModel(model.id).then(function(response){
+                           $scope.models.splice(idx,1);
+                           SweetAlert.swal("Deleted!", model.name + " has been deleted.", "success");
+                       });
+                   }else{
+                       SweetAlert.swal("Cancelled", "Your imaginary file is safe :)", "error");
                    }
               });
+        }
+        
+        $scope.loadTags = function(text){
+            console.log("Esta es la query : ", text);
+            return TermsService.getMatchingTerms(text).then(function(response){
+                console.log(response.data.terms);
+                return response.data.terms; 
+            });
+        }
+        
+        $scope.filter = function(){
+            console.log("Tags actuales : " , $scope.tags);
         }
 
         ModelsService.getCountModels().then(function (response) {

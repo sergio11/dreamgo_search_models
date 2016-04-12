@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,12 +25,13 @@ class ModelsController
     public function get($start,$count){
         return new JsonResponse($this->modelsService->get($start,$count));
     }
+    
 
     public function count(){
         return new JsonResponse($this->modelsService->count());
     }
 
-    public function save(Request $request)
+    public function save(Application $app, Request $request)
     {
         $file = $request->files->get('file');
         //get filename
@@ -38,7 +40,7 @@ class ModelsController
         $size = $file->getClientSize();
         //save model
         $id = $this->modelsService->save(array('name' => $filename, 'size' => $size));
-        $path = $_SERVER['DOCUMENT_ROOT'] . '/modelos/public/uploads/';
+        $path = $app['upload_file_dir'];
         $file->move($path,$filename);
         return new JsonResponse(array('id' => $id));
 
@@ -60,11 +62,12 @@ class ModelsController
     }
 
 
-    public function delete($id)
+    public function delete(Application $app, $id)
     {
-
-        return new JsonResponse($this->notesService->delete($id));
-
+        $model = $this->modelsService->getModelById($id);
+        $result = $this->modelsService->delete($id);
+        $result && @unlink($app['upload_file_dir'] . $model['name']);
+        return new JsonResponse($result);
     }
 
 }

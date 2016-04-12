@@ -28,21 +28,27 @@ class RoutesLoader
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
-
-        //GET Model
-        $api->get('/models', "models.controller:getAll");
-        //GET Count Models
-        $api->get('/models/count', "models.controller:count");
-        //GET Paginate Models.
-        $api->get('/models/{start}/{count}', "models.controller:get");
-        //POST Model
-        $api->post('/models', "models.controller:save");
-        //GET Model Tags
+        
+         //GET Model Tags
         $api->get('/models/{model}/tags', "models.controller:getTags");
         //POST Model Tags
         $api->post('/models/{model}/tags', "models.controller:saveTags");
+        //GET Count Models
+        $api->get('/models/count', "models.controller:count");
+        //GET Model
+        $api->get('/models', "models.controller:getAll");
+        //POST Model
+        $api->post('/models', "models.controller:save");
+        //DELETE Model
+        $api->delete('/models/{id}', "models.controller:delete");
+        //GET Paginate Models.
+        $api->get('/models/{start}/{count}', "models.controller:get");
+        
         //POST Term
         $api->post('/terms', "terms.controller:save");
+        //GET Terms
+        $api->get('/terms/{text}', "terms.controller:match");
+        
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

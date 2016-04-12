@@ -3,11 +3,16 @@
     <div class="page-header">
         <h2>Search Models <small>Total Models {{ totalModels }}</small></h2>
     </div>
-
-    <div class="form-group label-floating">
-        <label class="control-label" for="focusedInput1">Write something to make the label float</label>
-        <input class="form-control" id="focusedInput1" type="text">
-    </div>
+    <form name="searchModelsForm" ng-submit="filter()">
+        <div class="input-group">
+            <span class="input-group-addon glyphicon glyphicon-tags"></span>
+            <tags-input ng-model="tags" add-on-paste="true" class="form-control" >
+                <auto-complete source="loadTags($query)"></auto-complete>
+            </tags-input>
+        </div>
+        <button type="submit" class="btn btn-raised btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+    </form>
+    
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>
@@ -27,8 +32,8 @@
                     <td>{{model.createAt | date:'dd-MMM-yy HH:mm'}}</td>
                     <td nowrap>{{ model.size/1024/1024|number:2}} MB</td>
                     <td class="text-center" nowrap>
-                        <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Tags for {{model.name}}" ng-click="loadTags(model.id)">
-                            <span class="glyphicon glyphicon-tags"></span> Tags
+                        <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Tags for {{model.name}}">
+                            <span class="glyphicon glyphicon-tags"></span> Tags ({{model.tags.length}})
                         </button>
                         <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="deleteModel(model.id)">
                             <span class="glyphicon glyphicon-trash"></span> Remove
@@ -55,22 +60,20 @@
 
     
     <script type="text/ng-template" id="tags-input.html">
-        <div class="text-center">
-            <img src="./img/ring.gif" ng-show="!model.tagsLoaded" width="100"/>
-            <div ng-show="model.tagsLoaded">
-                <tags-input ng-model="model.tags" ></tags-input>
-                <div class="text-center">
-                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!model.tags.length">
-                        <span class="glyphicon glyphicon-ok"></span>
-                    </button>
-                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!fileTags[item.$$hashKey].tags.length || !fileTags[item.$$hashKey].dirty" ng-click="dropTags(item.$$hashKey)">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </button>
-                </div>
+        <div>
+            <tags-input ng-model="model.tags" ></tags-input>
+            <div class="text-center">
+                <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!model.tags.length">
+                    <span class="glyphicon glyphicon-ok"></span>
+                 </button>
+                 <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!model.tags.length" ng-click="dropTags(model.id)">
+                    <span class="glyphicon glyphicon-remove"></span>
+                 </button>
             </div>
-            
          </div>
     </script>
+    
+    
 
    
     

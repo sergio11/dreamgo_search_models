@@ -33,9 +33,9 @@ class TermsController
           return new JsonResponse(array('error' => false, 'ids' => $ids));
     }
 
-    public function delete($id)
-    {
-        return new JsonResponse($this->termsService->delete($id));
+    public function match($text){
+        $terms = $this->termsService->match($text);
+        return new JsonResponse(array('error' => false, 'terms' => $terms));
     }
 
     public function getDataFromRequest(Request $request)
