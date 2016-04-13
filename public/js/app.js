@@ -38,10 +38,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             return $http.get('/web/index.php/api/v1/models/' + model + '/tags');
         }
         //Get all Models
-        this.getModels = function (start, count, tags) {
+        this.getModels = function (start, count, tags, orderBy) {
             return $http.get('/web/index.php/api/v1/models/' + start + '/' + count, {
                 params:{
-                    tags: tags
+                    tags: tags,
+                    orderBy: orderBy
                 }
             });
         }
@@ -172,21 +173,33 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
     } ])
     .controller('searchCtrl', ['$scope', 'ModelsService', 'TermsService', '$log', 'SweetAlert', function ($scope, ModelsService, TermsService, $log, SweetAlert) {
 
-        var itemsPerPage = 8;
-        $scope.reverse = true;
+        $scope.itemsPerPage = 8;
+        $scope.orderBy = 'desc';
         $scope.totalModels = 0;
         $scope.currentPage = 1;
         $scope.maxSize = 5;
         $scope.models = [];
-        $scope.tagsSelected = null;
+        $scope.tags = [];
 
-        //Change Page
-        $scope.pageChanged = function () {
-            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) , itemsPerPage).then(function (response) {
-                console.log("Response data : ", response.data);
+        $scope.getModels = function(){
+            var tags = $scope.tags.map(function(tag){ return tag.id}).join(",");
+            var start = $scope.itemsPerPage * ($scope.currentPage - 1);
+            ModelsService.getModels(start, $scope.itemsPerPage, tags, $scope.orderBy ).then(function(response){
                 $scope.models = response.data;
-            })
-        };
+            });
+        }
+
+        $scope.loadTags = function(text){
+            return TermsService.getMatchingTerms(text).then(function(response){
+                return response.data.terms; 
+            });
+        }
+        
+        $scope.changeOrder = function(order){
+            $scope.orderBy = order;
+            $scope.getModels();
+        }
+
         //Delete model
         $scope.deleteModel = function (idModel) {
                
@@ -214,33 +227,13 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                            SweetAlert.swal("Deleted!", model.name + " has been deleted.", "success");
                        });
                    }else{
-                       SweetAlert.swal("Cancelled", "Your imaginary file is safe :)", "error");
+                       SweetAlert.swal("Cancelled", model.name + " is safe :)", "error");
                    }
               });
         }
         
-        $scope.loadTags = function(text){
-            return TermsService.getMatchingTerms(text).then(function(response){
-                console.log(response.data.terms);
-                return response.data.terms; 
-            });
-        }
         
-        $scope.filter = function(){
-            console.log("Tags actuales : " , $scope.tags);
-            var tags = $scope.tags.map(function(tag){ return tag.id}).join(",");
-            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) , itemsPerPage, tags ).then(function(response){
-                console.log("Modelos obteneidos : ", response.data);
-                $scope.models = response.data;
-            });
-        }
-
         ModelsService.getCountModels().then(function (response) {
             $scope.totalModels = response.data;
         })
-
-        ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1), itemsPerPage).then(function (response) {
-            $scope.models = response.data;
-        });
-
-    } ]);
+    }]);

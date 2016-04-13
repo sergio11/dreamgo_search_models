@@ -10,12 +10,16 @@ class ModelsService extends BaseService
         return $this->db->fetchAll("SELECT * FROM models");
     }
 
-    public function get($start,$count,$tags){
+    public function get($start,$count,$tags,$orderBy){
         
         if($tags){
-            $query = "SELECT id, name, size, createAt FROM models M JOIN models_tagged MT ON(M.id = MT.idmodel) WHERE MT.idterm IN ($tags)";
+            $query = "SELECT DISTINCT id, name, size, createAt FROM models M JOIN models_tagged MT ON(M.id = MT.idmodel) WHERE MT.idterm IN ($tags)";
         }else{
             $query = "SELECT * FROM models";
+        }
+
+        if($orderBy &&  in_array(strtoupper($orderBy), ['ASC', 'DESC'])){
+             $query .= " ORDER BY createAt $orderBy";
         }
         
         $query .= "  LIMIT $start, $count";

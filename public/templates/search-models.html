@@ -1,4 +1,4 @@
-<div class="container" ng-controller="searchCtrl">
+<div class="container" ng-controller="searchCtrl" ng-init="getModels()">
     
     <div class="page-header">
         <h2>Search Models <small>Total Models {{ totalModels }}</small></h2>
@@ -6,7 +6,7 @@
 
     <div class="row row-separate">
         <div class="col-sm-6">
-            <form name="searchModelsForm" ng-submit="filter()">
+            <form name="searchModelsForm" ng-submit="getModels()">
                 <div class="input-group">
                     <span class="input-group-addon glyphicon glyphicon-tags"></span>
                     <tags-input ng-model="tags" add-on-paste="true" add-from-autocomplete-only="true" class="form-control" key-property="id" display-property="text" ng-disabled="!totalModels">
@@ -35,7 +35,7 @@
                 <tr class="info" ng-if="!models.length">
                     <td class='text-center' colspan='6'>No models found</td>
                 </tr>
-                <tr ng-repeat="model in models | orderBy:'createAt':reverse">
+                <tr ng-repeat="model in models">
                     <td><strong>{{ model.name }}</strong></td>
                     <td>{{model.createAt | date:'dd-MMM-yy HH:mm'}}</td>
                     <td nowrap>{{ model.size/1024/1024|number:2}} MB</td>
@@ -57,12 +57,12 @@
     </div>
     <div class="row">
         <div class="col-sm-6">
-             <uib-pagination total-items="totalModels" ng-model="currentPage" ng-change="pageChanged()" max-size="maxSize" boundary-link-numbers="true"></uib-pagination>
+             <uib-pagination total-items="totalModels" ng-model="currentPage" ng-change="getModels()" max-size="maxSize" boundary-link-numbers="true"></uib-pagination>
         </div>
         <div class="col-sm-6">
-            <div class="btn-group btn-group-justified btn-group-raised">
-                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : reverse}]" ng-click="reverse = true">Recent Files</a>
-                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : !reverse}]" ng-click="reverse = false">Old Files</a>
+            <div class="btn-group btn-group-justified btn-group-raised" >
+                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : orderBy == 'desc'}]" ng-click="changeOrder('desc')" ng-disabled="models.length < 2">Recent Files</a>
+                <a href="javascript:void(0)" ng-class="['btn', 'btn-primary', {active : orderBy == 'asc'}]" ng-click="changeOrder('asc')" ng-disabled="models.length < 2">Old Files</a>
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@
 
     
     <script type="text/ng-template" id="tags-input.html">
-        <div>
+        <div >
             <tags-input ng-model="model.tags" ></tags-input>
             <div class="text-center">
                 <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!model.tags.length">
