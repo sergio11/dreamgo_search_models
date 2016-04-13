@@ -10,8 +10,16 @@ class ModelsService extends BaseService
         return $this->db->fetchAll("SELECT * FROM models");
     }
 
-    public function get($start,$count){
-        $models = $this->db->fetchAll("SELECT * FROM models LIMIT $start, $count");
+    public function get($start,$count,$tags){
+        
+        if($tags){
+            $query = "SELECT id, name, size, createAt FROM models M JOIN models_tagged MT ON(M.id = MT.idmodel) WHERE MT.idterm IN ($tags)";
+        }else{
+            $query = "SELECT * FROM models";
+        }
+        
+        $query .= "  LIMIT $start, $count";
+        $models = $this->db->fetchAll($query);
         for($i = 0, $len = count($models); $i < $len; $i++){
             $models[$i]['tags'] = $this->db->fetchAll("SELECT id, text FROM terms T JOIN models_tagged MT ON(T.id = MT.idterm) WHERE idmodel = :model ", array(':model' => $models[$i]['id']));
         }

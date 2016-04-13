@@ -24,46 +24,50 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/models/web/index.php/api/v1/terms', { 'tags': tags })
+            return $http.post('/web/index.php/api/v1/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/models/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
         }
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/models/web/index.php/api/v1/models/' + model + '/tags');
+            return $http.get('/web/index.php/api/v1/models/' + model + '/tags');
         }
         //Get all Models
-        this.getModels = function (start, count) {
-            return $http.get('/models/web/index.php/api/v1/models/' + start + '/' + count);
+        this.getModels = function (start, count, tags) {
+            return $http.get('/web/index.php/api/v1/models/' + start + '/' + count, {
+                params:{
+                    tags: tags
+                }
+            });
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/models/web/index.php/api/v1/models/count');
+            return $http.get('/web/index.php/api/v1/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/models/web/index.php/api/v1/models/'+idModel);
+            return $http.delete('/web/index.php/api/v1/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/models/web/index.php/api/v1/terms/' + text);
+            return $http.get('/web/index.php/api/v1/terms/' + text);
         }
         
     }])
-    .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', function ($scope, ModelsService, FileUploader) {
+    .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, FileUploader, SweetAlert) {
 
         $scope.alerts = [];
         $scope.fileTags = {};
         $scope.uploader = new FileUploader({
-            url: '/models/web/index.php/api/v1/models'
+            url: '/web/index.php/api/v1/models'
         });
 
         // Upload custom filter
@@ -106,7 +110,8 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 var model = $scope.fileTags[key];
                 //Save Model Tags
                 ModelsService.saveTags(model.id, model.tags).then(function (response) {
-                    model.dirty = false;
+                     model.dirty = false;
+                     SweetAlert.swal("Saved!", "tags were saved succesfully", "success");
                 });
             }
         }
@@ -177,7 +182,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Change Page
         $scope.pageChanged = function () {
-            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) + 1, itemsPerPage).then(function (response) {
+            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) , itemsPerPage).then(function (response) {
                 console.log("Response data : ", response.data);
                 $scope.models = response.data;
             })
@@ -215,7 +220,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         
         $scope.loadTags = function(text){
-            console.log("Esta es la query : ", text);
             return TermsService.getMatchingTerms(text).then(function(response){
                 console.log(response.data.terms);
                 return response.data.terms; 
@@ -224,13 +228,18 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         
         $scope.filter = function(){
             console.log("Tags actuales : " , $scope.tags);
+            var tags = $scope.tags.map(function(tag){ return tag.id}).join(",");
+            ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) , itemsPerPage, tags ).then(function(response){
+                console.log("Modelos obteneidos : ", response.data);
+                $scope.models = response.data;
+            });
         }
 
         ModelsService.getCountModels().then(function (response) {
             $scope.totalModels = response.data;
         })
 
-        ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1) + 1, itemsPerPage).then(function (response) {
+        ModelsService.getModels(itemsPerPage * ($scope.currentPage - 1), itemsPerPage).then(function (response) {
             $scope.models = response.data;
         });
 

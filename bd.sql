@@ -1,7 +1,7 @@
 
 
-CREATE DATABASE modelos;
-use modelos;
+CREATE DATABASE dreamgo;
+use dreamgo;
 
 SET FOREIGN_KEY_CHECKS = 0;
 

@@ -22,8 +22,9 @@ class ModelsController
         return new JsonResponse($this->modelsService->getAll());
     }
 
-    public function get($start,$count){
-        return new JsonResponse($this->modelsService->get($start,$count));
+    public function get( Request $request, $start,$count){
+        $tags = $request->query->get('tags');
+        return new JsonResponse($this->modelsService->get($start,$count,$tags));
     }
     
 
