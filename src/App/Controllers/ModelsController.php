@@ -48,21 +48,7 @@ class ModelsController
 
     }
 
-    public function saveTags(Request $request, $model){
-        $tags = $request->request->get("tags");
-        $ids = [];
-        for($i = 0, $len = count($tags); $i < $len; $i++){
-            $ids[] = $this->modelsService->saveModelTag(array('idmodel' => $model, 'idterm' => $tags[$i]));
-        }
-         return new JsonResponse(array('ids' => $ids));
-
-    }
-
-    public function getTags($model){
-        $tags = $this->modelsService->getModelTags($model);
-        return new JsonResponse(array('tags' => $tags));
-    }
-
+   
 
     public function delete(Application $app, $id)
     {

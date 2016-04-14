@@ -44,15 +44,6 @@ class ModelsService extends BaseService
         $this->db->insert("models", $model);
         return $this->db->lastInsertId();
     }
-
-    public function saveModelTag($modelTag){
-        $this->db->insert("models_tagged", $modelTag);
-        return $this->db->lastInsertId();
-    }
-
-    public function getModelTags($model){
-        return $this->db->fetchAll("SELECT T.id as id, T.text as text FROM terms T JOIN models_tagged MT ON (T.id = MT.idterm) WHERE MT.idmodel = $model ");
-    }
     
     public function delete($id){
        return $this->db->delete('models',array('id' => $id ));

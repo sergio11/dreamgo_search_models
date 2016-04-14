@@ -23,6 +23,11 @@ class ServicesLoader
         $this->app['terms.service'] = $this->app->share(function () {
             return new Services\TermsService($this->app["db"]);
         });
+
+        //Models tagged Service
+        $this->app['models.tagged.service'] = $this->app->share(function () {
+            return new Services\ModelsTaggedService($this->app["db"]);
+        });
     }
 }
 

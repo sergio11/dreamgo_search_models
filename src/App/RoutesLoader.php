@@ -23,6 +23,9 @@ class RoutesLoader
         $this->app['terms.controller'] = $this->app->share(function () {
             return new Controllers\TermsController($this->app['terms.service']);
         });
+        $this->app['models.tagged.controller'] = $this->app->share(function () {
+            return new Controllers\ModelsTaggedController($this->app['models.tagged.service'], $this->app['terms.service'], $this->app['models.service']);
+        });
     }
 
     public function bindRoutesToControllers()
@@ -30,9 +33,11 @@ class RoutesLoader
         $api = $this->app["controllers_factory"];
         
          //GET Model Tags
-        $api->get('/models/{model}/tags', "models.controller:getTags");
+        $api->get('/models/{model}/tags', "models.tagged.controller:getTags");
         //POST Model Tags
-        $api->post('/models/{model}/tags', "models.controller:saveTags");
+        $api->post('/models/{model}/tags', "models.tagged.controller:saveTags");
+        //DELETE Model Tags
+        $api->delete('/models/{model}/tags/{tags}', "models.tagged.controller:deleteTags");
         //GET Count Models
         $api->get('/models/count', "models.controller:count");
         //GET Model

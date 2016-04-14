@@ -2,6 +2,7 @@
 
 
 namespace App\Controllers;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,12 +23,14 @@ class TermsController
         return new JsonResponse($this->termsService->getAll());
     }
 
-    public function save(Request $request)
+    public function save(Application $app, Request $request)
     {
          $ids = [];
          $tags = $this->getDataFromRequest($request);
+         $allTags = array_column($this->termsService->getAll(), 'text', 'id');
          for($i = 0, $len = count($tags); $i < $len; $i++){
-             $ids[] = $this->termsService->save($tags[$i]);
+             $id = array_search($tags[$i]['text'], $allTags);
+             $ids[] = $id ? $id : $this->termsService->save($tags[$i]);
          }
 
           return new JsonResponse(array('error' => false, 'ids' => $ids));

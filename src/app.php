@@ -49,9 +49,9 @@ $app->register(new DoctrineServiceProvider(), array(
         'mysql' => array(
             'driver'    => 'pdo_mysql',
             'host'      => 'localhost',
-            'dbname'    => 'modelos',
+            'dbname'    => 'dreamgo',
             'user'      => 'root',
-            'password'  => '',
+            'password'  => 'dreamgo00',
             'charset'   => 'utf8mb4',
         )
     )

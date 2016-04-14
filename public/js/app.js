@@ -33,6 +33,12 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
                 });
         }
+
+        //Delete Tags for model
+        this.deleteTags = function(model, tags){
+            return $http.delete('/web/index.php/api/v1/models/' + model + '/tags/'+ tags);
+        }
+
         //Get tags for model
         this.getTags = function (model) {
             return $http.get('/web/index.php/api/v1/models/' + model + '/tags');
@@ -63,7 +69,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         
     }])
-    .controller('addModelCtrl', ['$scope', 'ModelsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, FileUploader, SweetAlert) {
+    .controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
 
         $scope.alerts = [];
         $scope.fileTags = {};
@@ -94,34 +100,67 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.closeAlert = function (index) {
             $scope.alerts.splice(index, 1);
         };
+
         //Load Tags
-        $scope.loadTags = function (key) {
-            if ($scope.fileTags && $scope.fileTags[key]) {
-                var model = $scope.fileTags[key];
-                !model.tagsLoaded && ModelsService.getTags(model.id).then(function (response) {
-                    model.tags = response.data.tags;
-                    model.tagsLoaded = true;
-                });
-            }
+        $scope.loadTags = function(text){
+            return TermsService.getMatchingTerms(text).then(function(response){
+                return response.data.terms; 
+            });
         }
 
         //Save model tags
         $scope.saveTags = function (key) {
             if ($scope.fileTags && $scope.fileTags[key]) {
                 var model = $scope.fileTags[key];
+                var tagsToSync = model.tags.filter(function(tag){ return !tag.sync});
                 //Save Model Tags
-                ModelsService.saveTags(model.id, model.tags).then(function (response) {
-                     model.dirty = false;
+                ModelsService.saveTags(model.id, tagsToSync).then(function (response) {
+                    var ids = response.data.ids;
+                    for(var i = 0, len = ids.length; i < len; i++){
+                        tagsToSync[i].id = ids[i];
+                        tagsToSync[i].sync = true;
+                     }
                      SweetAlert.swal("Saved!", "tags were saved succesfully", "success");
                 });
             }
         }
 
+        //has tags
+        $scope.hasTags = function(key){
+            return $scope.fileTags && $scope.fileTags[key].tags.length;
+        }
+
+        //has no sync tags
+        $scope.hasNotSyncTags = function(key){
+            var hasSyncTags = false;
+            if($scope.fileTags && $scope.fileTags[key]){
+                hasSyncTags = $scope.fileTags[key].tags.filter(function(tag){
+                    return !tag.sync;
+                }).length;
+            }
+            return hasSyncTags;
+        }
+
         //Drop Model Tags
         $scope.dropTags = function (key) {
             if ($scope.fileTags && $scope.fileTags[key]) {
-                var tags = $scope.fileTags[key].tags;
-                tags.splice(0, tags.length);
+                var model = $scope.fileTags[key];
+                var tagsToDelete = model.tags.filter(function(tag){
+                    return tag.sync;
+                }).map(function(tag){
+                    return tag.id;
+                }).join(',');
+                
+                if(tagsToDelete.length){
+                    ModelsService.deleteTags(model.id, tagsToDelete).then(function(response){
+                        SweetAlert.swal("Saved!", "tags were droped succesfully", "success");
+                        model.tags.splice(0, model.tags.length);
+                    });
+                }else{
+                    model.tags.splice(0, model.tags.length);
+                }
+
+                
             }
         }
 
@@ -135,7 +174,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         };
         //File upload success
         $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false, tagsLoaded: false };
+            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false};
         };
 
 
