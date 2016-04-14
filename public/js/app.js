@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
+
+angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert', 'flock.bootstrap.material'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -12,14 +13,22 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             })
             .state('add', {
                 url: "/add",
-                templateUrl: "templates/add-model.html"
+                templateUrl: "templates/add-model.html",
+                controller: "addModelCtrl"
             })
             .state('search', {
                 url: "/search",
-                templateUrl: "templates/search-models.html"
+                templateUrl: "templates/search-models.html",
+                controller: "searchCtrl"
+            })
+            .state('predictionModel', {
+                url: "/prediction-model",
+                templateUrl: "templates/prediction-model.html",
+                controller: "predictionCtrl"
             })
 
     } ])
+    .service('X2JS', function(){ return new X2JS() })
     .service('ModelsService', ['$http', function ($http) {
 
         //Save Tags for model
@@ -158,9 +167,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                     });
                 }else{
                     model.tags.splice(0, model.tags.length);
-                }
-
-                
+                } 
             }
         }
 
@@ -275,4 +282,29 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         ModelsService.getCountModels().then(function (response) {
             $scope.totalModels = response.data;
         })
+    }])
+    .controller('predictionCtrl', ['$scope', 'TermsService', 'X2JS', function($scope, TermsService, X2JS){
+        
+        //Load Tags
+        $scope.loadTags = function(text){
+            return TermsService.getMatchingTerms(text).then(function(response){
+                return response.data.terms; 
+            });
+        }
+
+        $scope.createXML = function(){
+            var jsonObj = { 
+                 MyRoot : {
+                            test: 'success',
+                            test2 : { 
+                                item : [ 'val1', 'val2' ]
+                            }
+                  }
+            };
+            var xmlAsStr = X2JS.json2xml_str( jsonObj );
+            console.log("El XML resultante : " , xmlAsStr);
+        }
+
+        
+
     }]);
