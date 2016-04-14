@@ -33,11 +33,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/web/index.php/api/v1/terms', { 'tags': tags })
+            return $http.post('/models/web/index.php/api/v1/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/models/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
@@ -45,16 +45,16 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Delete Tags for model
         this.deleteTags = function(model, tags){
-            return $http.delete('/web/index.php/api/v1/models/' + model + '/tags/'+ tags);
+            return $http.delete('/models/web/index.php/api/v1/models/' + model + '/tags/'+ tags);
         }
 
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/web/index.php/api/v1/models/' + model + '/tags');
+            return $http.get('/models/web/index.php/api/v1/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count, tags, orderBy) {
-            return $http.get('/web/index.php/api/v1/models/' + start + '/' + count, {
+            return $http.get('/models/web/index.php/api/v1/models/' + start + '/' + count, {
                 params:{
                     tags: tags,
                     orderBy: orderBy
@@ -63,27 +63,27 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/web/index.php/api/v1/models/count');
+            return $http.get('/models/web/index.php/api/v1/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/web/index.php/api/v1/models/'+idModel);
+            return $http.delete('/models/web/index.php/api/v1/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/web/index.php/api/v1/terms/' + text);
+            return $http.get('/models/web/index.php/api/v1/terms/' + text);
         }
         
     }])
     .controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
 
         $scope.alerts = [];
-        $scope.fileTags = {};
+        $scope.models = [];
         $scope.uploader = new FileUploader({
-            url: '/web/index.php/api/v1/models'
+            url: '/models/web/index.php/api/v1/models'
         });
 
         // Upload custom filter
@@ -110,66 +110,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             $scope.alerts.splice(index, 1);
         };
 
-        //Load Tags
-        $scope.loadTags = function(text){
-            return TermsService.getMatchingTerms(text).then(function(response){
-                return response.data.terms; 
-            });
-        }
-
-        //Save model tags
-        $scope.saveTags = function (key) {
-            if ($scope.fileTags && $scope.fileTags[key]) {
-                var model = $scope.fileTags[key];
-                var tagsToSync = model.tags.filter(function(tag){ return !tag.sync});
-                //Save Model Tags
-                ModelsService.saveTags(model.id, tagsToSync).then(function (response) {
-                    var ids = response.data.ids;
-                    for(var i = 0, len = ids.length; i < len; i++){
-                        tagsToSync[i].id = ids[i];
-                        tagsToSync[i].sync = true;
-                     }
-                     SweetAlert.swal("Saved!", "tags were saved succesfully", "success");
-                });
-            }
-        }
-
-        //has tags
-        $scope.hasTags = function(key){
-            return $scope.fileTags && $scope.fileTags[key].tags.length;
-        }
-
-        //has no sync tags
-        $scope.hasNotSyncTags = function(key){
-            var hasSyncTags = false;
-            if($scope.fileTags && $scope.fileTags[key]){
-                hasSyncTags = $scope.fileTags[key].tags.filter(function(tag){
-                    return !tag.sync;
-                }).length;
-            }
-            return hasSyncTags;
-        }
-
-        //Drop Model Tags
-        $scope.dropTags = function (key) {
-            if ($scope.fileTags && $scope.fileTags[key]) {
-                var model = $scope.fileTags[key];
-                var tagsToDelete = model.tags.filter(function(tag){
-                    return tag.sync;
-                }).map(function(tag){
-                    return tag.id;
-                }).join(',');
-                
-                if(tagsToDelete.length){
-                    ModelsService.deleteTags(model.id, tagsToDelete).then(function(response){
-                        SweetAlert.swal("Saved!", "tags were droped succesfully", "success");
-                        model.tags.splice(0, model.tags.length);
-                    });
-                }else{
-                    model.tags.splice(0, model.tags.length);
-                } 
-            }
-        }
+        
 
         // File adding failed.
         $scope.uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
@@ -181,7 +122,8 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         };
         //File upload success
         $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-            $scope.fileTags[fileItem.$$hashKey] = { id: response.id, tags: [], dirty: false};
+            fileItem.id = response.id;
+            $scope.models.push({ id: response.id, tags: []});
         };
 
 
@@ -231,6 +173,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             var tags = $scope.tags.map(function(tag){ return tag.id}).join(",");
             var start = $scope.itemsPerPage * ($scope.currentPage - 1);
             ModelsService.getModels(start, $scope.itemsPerPage, tags, $scope.orderBy ).then(function(response){
+                response.data.forEach(function(model){
+                    model.tags.forEach(function(tag){
+                        tag.sync = true;
+                    });
+                });
                 $scope.models = response.data;
             });
         }
@@ -307,4 +254,82 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         
 
+    }])
+    .controller('tagsCtrl', ['$scope' , 'TermsService', 'ModelsService', 'SweetAlert',  function($scope, TermsService, ModelsService, SweetAlert){
+        
+        var _getModelById = function(id){
+            return $scope.$parent.models && $scope.$parent.models.find(function(model){
+                return model.id == id;
+            });
+        }
+        
+        $scope.getModelTags = function(id){
+            var model = _getModelById(id);
+            return model.tags;
+        }
+        
+        //Load Tags
+        $scope.loadTags = function(text){
+            return TermsService.getMatchingTerms(text).then(function(response){
+                return response.data.terms; 
+            });
+        }
+
+        //Save model tags
+        $scope.saveTags = function (id) {
+            var model = _getModelById(id);
+            if (model) {
+                var tagsToSync = model.tags.filter(function(tag){ return !tag.sync});
+                //Save Model Tags
+                ModelsService.saveTags(model.id, tagsToSync).then(function (response) {
+                    var ids = response.data.ids;
+                    for(var i = 0, len = ids.length; i < len; i++){
+                        tagsToSync[i].id = ids[i];
+                        tagsToSync[i].sync = true;
+                     }
+                     SweetAlert.swal("Saved!", "tags were saved succesfully", "success");
+                });
+            }
+        }
+
+        //has tags
+        $scope.hasTags = function(id){
+            var model = _getModelById(id);
+            return model && model.tags.length;
+        }
+
+        //has no sync tags
+        $scope.hasNotSyncTags = function(id){
+            var model = _getModelById(id);
+            var hasSyncTags = false;
+            if(model){
+                hasSyncTags = model.tags.filter(function(tag){
+                    return !tag.sync;
+                }).length;
+            }
+            return hasSyncTags;
+        }
+
+        //Drop Model Tags
+        $scope.dropTags = function (id) {
+            var model = _getModelById(id);
+            if (model) {
+                var tagsToDelete = model.tags.filter(function(tag){
+                    return tag.sync;
+                }).map(function(tag){
+                    return tag.id;
+                }).join(',');
+                
+                if(tagsToDelete.length){
+                    ModelsService.deleteTags(model.id, tagsToDelete).then(function(response){
+                        SweetAlert.swal("Saved!", "tags were droped succesfully", "success");
+                        model.tags.splice(0, model.tags.length);
+                    });
+                }else{
+                    model.tags.splice(0, model.tags.length);
+                } 
+            }
+        }
+        
+        
     }]);
