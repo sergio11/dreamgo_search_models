@@ -231,6 +231,60 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         })
     }])
     .controller('predictionCtrl', ['$scope', 'TermsService', 'X2JS', function($scope, TermsService, X2JS){
+
+        $scope.tables = {
+            tags:[],
+            output:{
+                add: false,
+                variables:[
+                    {id: 1, name:'var 1', desc: 'Description to var 1...'},
+                    {id: 2, name:'var 2', desc: 'Description to var 2...'}
+                ],
+                formInputs: []
+            },
+            input:{
+                add: false,
+                variables:[
+                    {id: 1, name:'var 1', desc: 'Description to var 1...'},
+                    {id: 2, name:'var 2', desc: 'Description to var 2...'}
+                ],
+                formInputs: []
+            }
+        }
+        
+        var _getIndexVariable = function(table, id){
+            return $scope.tables[table].variables.map(function(variable){
+                return variable.id;
+            }).indexOf(id);
+        }
+        
+        //Edit Variable
+        $scope.edit = function(table, variable){
+            variable.editMode = true;
+            $scope.tables[table].formInputs[variable.id]  = angular.copy(variable);
+            console.log($scope.tables[table].formInputs);
+        }
+        
+        $scope.remove = function(){
+            
+        }
+        
+        $scope.save = function(table, id){
+            var idx = _getIndexVariable(table, id);
+            if(idx >= 0){
+                var variable = $scope.tables[table].formInputs[id];
+                variable.editMode = false;
+                $scope.tables[table].variables[idx] = angular.copy(variable);
+            }
+        }
+        
+        $scope.cancel = function(table, id){
+            var idx = _getIndexVariable(table, id);
+            if(idx >= 0){
+                $scope.tables[table].variables[idx].editMode = false;
+                $scope.tables[table].formInputs[id] = {};
+            }
+        }
         
         //Load Tags
         $scope.loadTags = function(text){

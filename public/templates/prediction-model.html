@@ -14,7 +14,7 @@
                         <div class="form-group">
                             <label for="name" class="col-md-2 control-label">Tags</label>
                             <div class="col-md-7">
-                                <tags-input ng-model="tags" placeholder="add tag" >
+                                <tags-input ng-model="tables.tags" placeholder="add tag" >
                                     <auto-complete source="loadTags($query)"></auto-complete>
                                 </tags-input>
                             </div>
@@ -28,8 +28,8 @@
                     </fieldset>
                 </form>
                 <div class="row row-separate">
-                    <div class="col-xs-12 col-sm-6">
-                        <a href="javascript:void(0)" class="btn btn-raised btn-primary btn-xs">
+                    <div class="col-sm-12 col-md-6">
+                        <a href="javascript:void(0)" ng-click="tables.input.add = true" class="btn btn-raised btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Input Variable
                         </a>
                         <table class="table table-striped table-bordered">
@@ -40,36 +40,46 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Var 1</td>
-                                    <td>This Variable ...</td>
-                                    <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-info btn-xs">
+                           <tbody>
+                                <tr ng-repeat="variable in tables.input.variables" ng-init="formInput=tables.input.formInputs[variable.id]">
+                                    <td ng-if="variable.editMode"><input type="text" name="variable" ng-model="formInput.name"/></td>
+                                    <td ng-if="!variable.editMode">{{variable.name}}</td>
+                                    <td ng-if="variable.editMode"><input type="text" name="description" ng-model="formInput.desc"/></td>
+                                    <td ng-if="!variable.editMode">{{variable.desc}}</td>
+                                    <td nowrap class="text-center" ng-if="!variable.editMode">
+                                        <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit('input', variable)">
                                             <span class="glyphicon glyphicon-pencil"></span> Edit
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs">
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove(variable)">
                                             <span class="glyphicon glyphicon-trash"></span> Remove
                                         </button>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td>Var 2</td>
-                                    <td>This Variable ...</td>
-                                    <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-info btn-xs">
-                                            <span class="glyphicon glyphicon-pencil"></span> Edit
+                                    <td nowrap class="text-center" ng-if="variable.editMode">
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save('input', variable.id)">
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs">
-                                            <span class="glyphicon glyphicon-trash"></span> Remove
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('input', variable.id)">
+                                            <span class="glyphicon glyphicon-remove"></span> Cancel
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr ng-if="tables.input.add">
+                                    <td><input type="text" name="variable" value=''/></td>
+                                    <td><input type="text" name="description" value=''/></td>
+                                    <td nowrap class="text-center">
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click='save()'>
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Save
+                                        </button>
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click='cancel()'>
+                                            <span class="glyphicon glyphicon-remove"></span> Cancel
                                         </button>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <a href="javascript:void(0)" class="btn btn-raised btn-primary btn-xs">
+                    <div class="col-sm-12 col-md-6">
+                        <a href="javascript:void(0)" ng-click="tables.output.add = true" class="btn btn-raised btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Output Variable
                         </a>
                         <table class="table table-striped table-bordered">
@@ -81,27 +91,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Var 1</td>
-                                    <td>This Variable ...</td>
-                                    <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-info btn-xs">
+                                <tr ng-repeat="variable in tables.output.variables">
+                                    <td ng-if="variable.editMode"><input type="text" name="variable" ng-model="tables.output.formInputs[variable.id].name"/></td>
+                                    <td ng-if="!variable.editMode">{{variable.name}}</td>
+                                    <td ng-if="variable.editMode"><input type="text" name="description" ng-model="tables.output.formInputs[variable.id].desc"/></td>
+                                    <td ng-if="!variable.editMode">{{variable.desc}}</td>
+                                    <td nowrap class="text-center" ng-if="!variable.editMode">
+                                        <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit('output', variable)">
                                             <span class="glyphicon glyphicon-pencil"></span> Edit
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs">
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove(variable)">
                                             <span class="glyphicon glyphicon-trash"></span> Remove
                                         </button>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td>Var 2</td>
-                                    <td>This Variable ...</td>
-                                    <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-info btn-xs">
-                                            <span class="glyphicon glyphicon-pencil"></span> Edit
+                                    <td nowrap class="text-center" ng-if="variable.editMode">
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save('output',variable.id)">
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs">
-                                            <span class="glyphicon glyphicon-trash"></span> Remove
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('output', variable.id)">
+                                            <span class="glyphicon glyphicon-remove"></span> Cancel
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr ng-if="tables.output.add" ng-init="variables=tables.output.variables">
+                                    <td><input type="text" name="variable" ng-model="variables[variables.length].name"/></td>
+                                    <td><input type="text" name="description" ng-model="variables[variables.length].desc"/></td>
+                                    <td nowrap class="text-center">
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click='tables.output.add = false'>
+                                            <span class="glyphicon glyphicon-floppy-disk"></span> Save
+                                        </button>
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click='cancelNewVariable()'>
+                                            <span class="glyphicon glyphicon-remove"></span> Cancel
                                         </button>
                                     </td>
                                 </tr>
