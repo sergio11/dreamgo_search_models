@@ -55,7 +55,7 @@ class RoutesLoader
         $api->get('/terms/{text}', "terms.controller:match");
         
 
-        $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
+        $this->app->mount('/', $api);
     }
 }
 

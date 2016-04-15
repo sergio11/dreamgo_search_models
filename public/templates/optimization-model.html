@@ -1,0 +1,52 @@
+<div class="container anim-slide-below>
+    <div class="row row-separate">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Optimization Model</div>
+            <div class="panel-body">
+                <div class="container-fluid">
+                    <div class="row row-separate">
+                        <div class="col-sm-12 col-md-6">
+                            <div ng-include="'templates/model-form.html'"></div>
+                        </div>
+                        <div class="col-sm-12 col-md-6"
+                            <a href="javascript:void(0)" ng-click="addMode = true" ng-disabled="addMode" class="btn btn-raised btn-primary btn-xs">
+                                <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Variable
+                            </a>
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Variable</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="info" ng-if="!model.variables.length && !addMode">
+                                        <td class='text-center' colspan='3'>There are no specified variables</td>
+                                    </tr>
+                                    <tr ng-repeat="variable in model.variables">
+
+                                    </tr>
+                                    <tr ng-if="addMode" ng-init="nextId = getNextId('input')">
+                                        <input type="hidden" name="id" ng-model="formInputs['input'][nextId].id" ng-init="formInputs['input'][nextId].id = nextId"/>
+                                        <td><input type="text" name="variable" ng-model="formInputs['input'][nextId].name" required/></td>
+                                        <td><input type="text" name="description" ng-model="formInputs['input'][nextId].description" required/></td>
+                                        <td nowrap class="text-center">
+                                            <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!isValid(formInputs['input'][nextId])" ng-click="save('input', nextId)">
+                                                <span class="glyphicon glyphicon-floppy-disk"></span> Save
+                                            </button>
+                                            <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('input', nextId)">
+                                                <span class="glyphicon glyphicon-remove"></span> Cancel
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <div ng-include="'templates/model-actions.html'"></div>
+</div>

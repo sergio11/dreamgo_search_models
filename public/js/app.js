@@ -26,6 +26,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 templateUrl: "templates/prediction-model.html",
                 controller: "predictionCtrl"
             })
+            .state('optimizationModel', {
+                url: "/optimization-model",
+                templateUrl: "templates/optimization-model.html",
+                controller: "optimizationCtrl"
+            })
 
     } ])
     .service('X2JS', function(){ return new X2JS() })
@@ -33,11 +38,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/models/web/index.php/api/v1/terms', { 'tags': tags })
+            return $http.post('/api.php/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/models/web/index.php/api/v1/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/api.php/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
@@ -45,16 +50,16 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Delete Tags for model
         this.deleteTags = function(model, tags){
-            return $http.delete('/models/web/index.php/api/v1/models/' + model + '/tags/'+ tags);
+            return $http.delete('/api.php/models/' + model + '/tags/'+ tags);
         }
 
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/models/web/index.php/api/v1/models/' + model + '/tags');
+            return $http.get('/api.php/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count, tags, orderBy) {
-            return $http.get('/models/web/index.php/api/v1/models/' + start + '/' + count, {
+            return $http.get('/api.php/models/' + start + '/' + count, {
                 params:{
                     tags: tags,
                     orderBy: orderBy
@@ -63,27 +68,39 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/models/web/index.php/api/v1/models/count');
+            return $http.get('/api.php/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/models/web/index.php/api/v1/models/'+idModel);
+            return $http.delete('/api.php/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/models/web/index.php/api/v1/terms/' + text);
+            return $http.get('/api.php/terms/' + text);
         }
         
     }])
+    .directive('dataTable', function(){
+        return {
+            restrict: 'E',
+            scope: {
+              datasource: '='
+            },
+            controller: ['$scope', function($scope){
+               
+            }],
+            templateUrl: 'templates/data-table.html'
+        }
+    })
     .controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
 
         $scope.alerts = [];
         $scope.models = [];
         $scope.uploader = new FileUploader({
-            url: '/models/web/index.php/api/v1/models'
+            url: '/api.php/models'
         });
 
         // Upload custom filter
@@ -228,7 +245,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             $scope.totalModels = response.data;
         })
     }])
-    .controller('predictionCtrl', ['$scope', 'TermsService', 'X2JS', 'SweetAlert', function($scope, TermsService, X2JS, SweetAlert){
+    .controller('predictionCtrl', ['$scope', 'TermsService', function($scope, TermsService){
 
         $scope.model = {
             name: '',
@@ -309,10 +326,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             $scope.formInputs[type][id] = {};
         }
         
-        //Reset Model
-        $scope.reset = function(){
-            $scope.model = originalModel;
-        }
+        
 
         //Check Variable
         $scope.isValid = function(variable){
@@ -326,19 +340,9 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             });
         }
 
-        $scope.createXML = function(){
-            var variables = $scope.model.variables;
-            if(variables.input.length && variables.output.length){
-                var content = X2JS.json2xml_str( $scope.model );
-                "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
-                console.log("El XML resultante : " , xmlAsStr);
-            }else{
-                SweetAlert.swal("Here's a message!", "It's pretty, isn't it?");
-            }
-        }
-
+    }])
+    .controller('optimizationCtrl', ['$scope', function($scope){
         
-
     }])
     .controller('tagsCtrl', ['$scope' , 'TermsService', 'ModelsService', 'SweetAlert',  function($scope, TermsService, ModelsService, SweetAlert){
         
@@ -417,4 +421,28 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         
         
+    }])
+    .controller('tableCtrl', ['$scope', function($scope){
+        //Form inputs.
+        $scope.formInputs = {};
+         
+
+    }])
+    .controller('saveModelCtrl', ['$scope', 'X2JS', 'SweetAlert', function($scope, X2JS, SweetAlert){
+        //Reset Model
+        $scope.reset = function(){
+            $scope.$parent.model = $scope.$parent.originalModel;
+        }
+        //Save Model
+        $scope.saveModel = function(){
+            var variables = $scope.$parent.model.variables;
+            if(variables.input.length && variables.output.length){
+                var content = X2JS.json2xml_str( $scope.$parent.model );
+                var xmlAsStr = "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
+                console.log("El XML resultante : " , xmlAsStr);
+            }else{
+                SweetAlert.swal("Here's a message!", "It's pretty, isn't it?");
+            }
+        }
+
     }]);
