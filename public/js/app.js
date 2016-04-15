@@ -202,8 +202,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                
                var model = $scope.models[idx];
                
-               console.log("The Model : " , model);
-               
                SweetAlert.swal({
                    title: "Delete this model?",
                    text: "Are you sure you want to delete "+ model.name +" ?",
@@ -230,62 +228,97 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             $scope.totalModels = response.data;
         })
     }])
-    .controller('predictionCtrl', ['$scope', 'TermsService', 'X2JS', function($scope, TermsService, X2JS){
+    .controller('predictionCtrl', ['$scope', 'TermsService', 'X2JS', 'SweetAlert', function($scope, TermsService, X2JS, SweetAlert){
 
-        $scope.tables = {
-            tags:[],
-            output:{
-                add: false,
-                variables:[
-                    {id: 1, name:'var 1', desc: 'Description to var 1...'},
-                    {id: 2, name:'var 2', desc: 'Description to var 2...'}
-                ],
-                formInputs: []
+        $scope.model = {
+            name: '',
+            tags:{
+                tag: []
             },
-            input:{
-                add: false,
-                variables:[
-                    {id: 1, name:'var 1', desc: 'Description to var 1...'},
-                    {id: 2, name:'var 2', desc: 'Description to var 2...'}
-                ],
-                formInputs: []
+            objetiveFunction: '',
+            variables:{
+                input: [],
+                output: []
             }
         }
+
+        var originalModel = angular.copy($scope.model);
+        $scope.formInputs = {};
+        $scope.inputsAddMode = false;
+        $scope.outputsAddMode = false;
         
-        var _getIndexVariable = function(table, id){
-            return $scope.tables[table].variables.map(function(variable){
+        //Return Index Variable.
+        var _getIndexVariable = function(type, id){
+            return $scope.model.variables[type].map(function(variable){
                 return variable.id;
             }).indexOf(id);
         }
-        
-        //Edit Variable
-        $scope.edit = function(table, variable){
-            variable.editMode = true;
-            $scope.tables[table].formInputs[variable.id]  = angular.copy(variable);
-            console.log($scope.tables[table].formInputs);
+
+
+        $scope.getNextId = function(type){
+            var ids = $scope.model.variables[type].map(function(variable){
+                return variable.id;
+            });
+            return ids.length ? Math.max.apply(null, ids) + 1 : 1;
         }
         
-        $scope.remove = function(){
+        //Edit Variable
+        $scope.edit = function(type, variable){
+            variable.edit = true;
+            $scope.formInputs[type] = {}
+            $scope.formInputs[type][variable.id]  = angular.copy(variable);
+        }
+        //Remove Variable.
+        $scope.remove = function(type, id){
+            var idx = _getIndexVariable(type, id);
+            if(idx >= 0){
+                $scope.model.variables[type].splice(idx, 1);
+            }
+        }
+        
+        $scope.save = function(type, id){
+           var idx = _getIndexVariable(type, id);
+           var variable = $scope.formInputs[type][id];
+           if(idx >= 0){
+               delete variable.edit;
+               $scope.model.variables[type][idx] = angular.copy(variable);
+           }else{
+               $scope.model.variables[type].push(angular.copy(variable));
+               if(type == 'input'){
+                   $scope.inputsAddMode = false;
+               }else{
+                   $scope.outputsAddMode = false;
+               }
+           }
+
+           $scope.formInputs[type][id] = {};
             
         }
         
-        $scope.save = function(table, id){
-            var idx = _getIndexVariable(table, id);
+        $scope.cancel = function(type, id){
+            var idx = _getIndexVariable(type, id);
             if(idx >= 0){
-                var variable = $scope.tables[table].formInputs[id];
-                variable.editMode = false;
-                $scope.tables[table].variables[idx] = angular.copy(variable);
+                delete $scope.model.variables[type][idx].edit;
+            }else{
+                if(type == 'input'){
+                   $scope.inputsAddMode = false;
+               }else{
+                   $scope.outputsAddMode = false;
+               }
             }
+            $scope.formInputs[type][id] = {};
         }
         
-        $scope.cancel = function(table, id){
-            var idx = _getIndexVariable(table, id);
-            if(idx >= 0){
-                $scope.tables[table].variables[idx].editMode = false;
-                $scope.tables[table].formInputs[id] = {};
-            }
+        //Reset Model
+        $scope.reset = function(){
+            $scope.model = originalModel;
         }
-        
+
+        //Check Variable
+        $scope.isValid = function(variable){
+            return (variable.name && variable.name.length) && (variable.description && variable.description.length);
+        }
+
         //Load Tags
         $scope.loadTags = function(text){
             return TermsService.getMatchingTerms(text).then(function(response){
@@ -294,16 +327,14 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
 
         $scope.createXML = function(){
-            var jsonObj = { 
-                 MyRoot : {
-                            test: 'success',
-                            test2 : { 
-                                item : [ 'val1', 'val2' ]
-                            }
-                  }
-            };
-            var xmlAsStr = X2JS.json2xml_str( jsonObj );
-            console.log("El XML resultante : " , xmlAsStr);
+            var variables = $scope.model.variables;
+            if(variables.input.length && variables.output.length){
+                var content = X2JS.json2xml_str( $scope.model );
+                "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
+                console.log("El XML resultante : " , xmlAsStr);
+            }else{
+                SweetAlert.swal("Here's a message!", "It's pretty, isn't it?");
+            }
         }
 
         

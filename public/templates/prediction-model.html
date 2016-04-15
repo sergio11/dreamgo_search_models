@@ -8,13 +8,13 @@
                         <div class="form-group">
                             <label for="name" class="col-md-2 control-label">Name</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="name">
+                                <input type="text" class="form-control" id="name" ng-model="model.name">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="name" class="col-md-2 control-label">Tags</label>
                             <div class="col-md-7">
-                                <tags-input ng-model="tables.tags" placeholder="add tag" >
+                                <tags-input ng-model="model.tags.tag" placeholder="add tag" >
                                     <auto-complete source="loadTags($query)"></auto-complete>
                                 </tags-input>
                             </div>
@@ -22,14 +22,14 @@
                         <div class="form-group">
                             <label for="objetiveFunction" class="col-md-2 control-label">Objetive Function</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="objetiveFunction">
+                                <input type="text" class="form-control" id="objetiveFunction" ng-model="model.objetiveFunction">
                             </div>
                         </div>
                     </fieldset>
                 </form>
                 <div class="row row-separate">
                     <div class="col-sm-12 col-md-6">
-                        <a href="javascript:void(0)" ng-click="tables.input.add = true" class="btn btn-raised btn-primary btn-xs">
+                        <a href="javascript:void(0)" ng-click="inputsAddMode = true" class="btn btn-raised btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Input Variable
                         </a>
                         <table class="table table-striped table-bordered">
@@ -41,20 +41,23 @@
                                 </tr>
                             </thead>
                            <tbody>
-                                <tr ng-repeat="variable in tables.input.variables" ng-init="formInput=tables.input.formInputs[variable.id]">
-                                    <td ng-if="variable.editMode"><input type="text" name="variable" ng-model="formInput.name"/></td>
-                                    <td ng-if="!variable.editMode">{{variable.name}}</td>
-                                    <td ng-if="variable.editMode"><input type="text" name="description" ng-model="formInput.desc"/></td>
-                                    <td ng-if="!variable.editMode">{{variable.desc}}</td>
-                                    <td nowrap class="text-center" ng-if="!variable.editMode">
+                               <tr class="info" ng-if="!model.variables.input.length && !inputsAddMode">
+                                    <td class='text-center' colspan='3'>There are no specified input variables</td>
+                                </tr>
+                                <tr ng-repeat="variable in model.variables.input">
+                                    <td ng-if="variable.edit"><input type="text" name="variable" ng-model="formInputs['input'][variable.id].name"/></td>
+                                    <td ng-if="!variable.edit">{{variable.name}}</td>
+                                    <td ng-if="variable.edit"><input type="text" name="description" ng-model="formInputs['input'][variable.id].description"/></td>
+                                    <td ng-if="!variable.edit">{{variable.description}}</td>
+                                    <td nowrap class="text-center" ng-if="!variable.edit">
                                         <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit('input', variable)">
                                             <span class="glyphicon glyphicon-pencil"></span> Edit
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove(variable)">
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove('input', variable.id)">
                                             <span class="glyphicon glyphicon-trash"></span> Remove
                                         </button>
                                     </td>
-                                    <td nowrap class="text-center" ng-if="variable.editMode">
+                                    <td nowrap class="text-center" ng-if="variable.edit">
                                         <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save('input', variable.id)">
                                             <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
@@ -63,14 +66,15 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr ng-if="tables.input.add">
-                                    <td><input type="text" name="variable" value=''/></td>
-                                    <td><input type="text" name="description" value=''/></td>
+                                <tr ng-if="inputsAddMode" ng-init="nextId = getNextId('input')">
+                                    <input type="hidden" name="id" ng-model="formInputs['input'][nextId].id" ng-init="formInputs['input'][nextId].id = nextId"/>
+                                    <td><input type="text" name="variable" ng-model="formInputs['input'][nextId].name" required/></td>
+                                    <td><input type="text" name="description" ng-model="formInputs['input'][nextId].description" required/></td>
                                     <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click='save()'>
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!isValid(formInputs['input'][nextId])" ng-click="save('input', nextId)">
                                             <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click='cancel()'>
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('input', nextId)">
                                             <span class="glyphicon glyphicon-remove"></span> Cancel
                                         </button>
                                     </td>
@@ -79,7 +83,7 @@
                         </table>
                     </div>
                     <div class="col-sm-12 col-md-6">
-                        <a href="javascript:void(0)" ng-click="tables.output.add = true" class="btn btn-raised btn-primary btn-xs">
+                        <a href="javascript:void(0)" ng-click="outputsAddMode = true" class="btn btn-raised btn-primary btn-xs">
                             <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Output Variable
                         </a>
                         <table class="table table-striped table-bordered">
@@ -91,20 +95,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="variable in tables.output.variables">
-                                    <td ng-if="variable.editMode"><input type="text" name="variable" ng-model="tables.output.formInputs[variable.id].name"/></td>
-                                    <td ng-if="!variable.editMode">{{variable.name}}</td>
-                                    <td ng-if="variable.editMode"><input type="text" name="description" ng-model="tables.output.formInputs[variable.id].desc"/></td>
-                                    <td ng-if="!variable.editMode">{{variable.desc}}</td>
-                                    <td nowrap class="text-center" ng-if="!variable.editMode">
-                                        <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit('output', variable)">
+                                <tr class="info" ng-if="!model.variables.output.length && !outputsAddMode">
+                                    <td class='text-center' colspan='3'>There are no specified output variables</td>
+                                </tr>
+                                <tr ng-repeat="variable in model.variables.output">
+                                    <td ng-if="variable.edit"><input type="text" name="variable" ng-model="formInputs['output'][variable.id].name"/></td>
+                                    <td ng-if="!variable.edit">{{variable.name}}</td>
+                                    <td ng-if="variable.edit"><input type="text" name="description" ng-model="formInputs['output'][variable.id].description"/></td>
+                                    <td ng-if="!variable.edit">{{variable.description}}</td>
+                                    <td nowrap class="text-center" ng-if="!variable.edit">
+                                        <button type="button" class="btn btn-raised btn-info btn-xs"  ng-click="edit('output', variable)">
                                             <span class="glyphicon glyphicon-pencil"></span> Edit
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove(variable)">
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove('output', variable.id)">
                                             <span class="glyphicon glyphicon-trash"></span> Remove
                                         </button>
                                     </td>
-                                    <td nowrap class="text-center" ng-if="variable.editMode">
+                                    <td nowrap class="text-center" ng-if="variable.edit">
                                         <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save('output',variable.id)">
                                             <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
@@ -113,14 +120,15 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr ng-if="tables.output.add" ng-init="variables=tables.output.variables">
-                                    <td><input type="text" name="variable" ng-model="variables[variables.length].name"/></td>
-                                    <td><input type="text" name="description" ng-model="variables[variables.length].desc"/></td>
+                                <tr ng-if="outputsAddMode" ng-init="nextId = getNextId('output')">
+                                    <input type="hidden" name="id" ng-model="formInputs['output'][nextId].id" ng-init="formInputs['output'][nextId].id = nextId"/>
+                                    <td><input type="text" name="variable" ng-model="formInputs['output'][nextId].name"/></td>
+                                    <td><input type="text" name="description" ng-model="formInputs['output'][nextId].description"/></td>
                                     <td nowrap class="text-center">
-                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-click='tables.output.add = false'>
+                                        <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!isValid(formInputs['output'][nextId])" ng-click="save('output', nextId)">
                                             <span class="glyphicon glyphicon-floppy-disk"></span> Save
                                         </button>
-                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click='cancelNewVariable()'>
+                                        <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('output', nextId)">
                                             <span class="glyphicon glyphicon-remove"></span> Cancel
                                         </button>
                                     </td>
@@ -134,8 +142,8 @@
     </div>
     <div class="row row-separate">
         <div class="col-xs-12 text-center">
-            <a href="javascript:void(0)" class="btn btn-raised btn-success">Save</a>
-            <a href="javascript:void(0)" class="btn btn-raised btn-danger">Cancel</a>
+            <a href="javascript:void(0)" class="btn btn-raised btn-success" ng-click="createXML()">Save</a>
+            <a href="javascript:void(0)" class="btn btn-raised btn-danger" ng-click="reset()">Cancel</a>
         </div>
     </div>
 </div>
