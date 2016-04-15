@@ -38,11 +38,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/api.php/terms', { 'tags': tags })
+            return $http.post('/models/public/api.php/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/api.php/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/models/public/api.php/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
@@ -50,16 +50,16 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Delete Tags for model
         this.deleteTags = function(model, tags){
-            return $http.delete('/api.php/models/' + model + '/tags/'+ tags);
+            return $http.delete('/models/public/api.php/models/' + model + '/tags/'+ tags);
         }
 
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/api.php/models/' + model + '/tags');
+            return $http.get('/models/public/api.php/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count, tags, orderBy) {
-            return $http.get('/api.php/models/' + start + '/' + count, {
+            return $http.get('/models/public/api.php/models/' + start + '/' + count, {
                 params:{
                     tags: tags,
                     orderBy: orderBy
@@ -68,29 +68,94 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/api.php/models/count');
+            return $http.get('/models/public/api.php/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/api.php/models/'+idModel);
+            return $http.delete('/models/public/api.php/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/api.php/terms/' + text);
+            return $http.get('/models/public/api.php/terms/' + text);
         }
         
     }])
-    .directive('dataTable', function(){
+    .directive('datatable', function(){
         return {
             restrict: 'E',
+            replace: true,
             scope: {
-              datasource: '='
+              source: '=',
+              noDataMsg: '@',
+              addBtnText: '@',
+              headers: '='
             },
             controller: ['$scope', function($scope){
-               
+                
+                console.log("Data Table controller ...");
+                
+                $scope.formInputs = {};
+                $scope.addMode = false;
+                
+                //Return Index Row.
+                var _getIndexRow = function(id){
+                    return $scope.source.map(function(item){
+                        return item.id;
+                    }).indexOf(id);
+                }
+                
+                //Edit row
+                $scope.edit = function(item){
+                    item.edit = true;
+                    $scope.formInputs[item.id]  = angular.copy(item);
+                }
+                //Remove row.
+                $scope.remove = function(id){
+                    var idx = _getIndexRow(id);
+                    if(idx >= 0){
+                        $scope.source.splice(idx, 1);
+                    }
+                }
+                // Save new row.
+                $scope.save = function(id){
+                    var idx = _getIndexRow(id);
+                    var item = $scope.formInputs[id];
+                    if(idx >= 0){
+                        delete item.edit;
+                        $scope.source[idx] = angular.copy(item);
+                    }else{
+                        $scope.source.push(angular.copy(item));
+                        $scope.addMode = false;
+                    }
+
+                    $scope.formInputs[id] = {};
+                }
+        
+                $scope.cancel = function(id){
+                    var idx = _getIndexRow(id);
+                    if(idx >= 0){
+                        delete $scope.source[idx].edit;
+                    }else{
+                        $scope.addMode = false;
+                    }
+                    $scope.formInputs[id] = {};
+                }
+                
+                // Get the next id.
+                $scope.getNextId = function(type){
+                    var ids = $scope.source.map(function(item){
+                        return item.id;
+                    });
+                    return ids.length ? Math.max.apply(null, ids) + 1 : 1;
+                }
+        
+                //Check Variable
+                $scope.isValid = function(item){
+                    return (item.name && item.name.length) && (item.description && item.description.length);
+                }
             }],
             templateUrl: 'templates/data-table.html'
         }
@@ -100,7 +165,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.alerts = [];
         $scope.models = [];
         $scope.uploader = new FileUploader({
-            url: '/api.php/models'
+            url: '/models/public/api.php/models'
         });
 
         // Upload custom filter
@@ -259,79 +324,9 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             }
         }
 
-        var originalModel = angular.copy($scope.model);
-        $scope.formInputs = {};
-        $scope.inputsAddMode = false;
-        $scope.outputsAddMode = false;
-        
-        //Return Index Variable.
-        var _getIndexVariable = function(type, id){
-            return $scope.model.variables[type].map(function(variable){
-                return variable.id;
-            }).indexOf(id);
-        }
-
-
-        $scope.getNextId = function(type){
-            var ids = $scope.model.variables[type].map(function(variable){
-                return variable.id;
-            });
-            return ids.length ? Math.max.apply(null, ids) + 1 : 1;
-        }
-        
-        //Edit Variable
-        $scope.edit = function(type, variable){
-            variable.edit = true;
-            $scope.formInputs[type] = {}
-            $scope.formInputs[type][variable.id]  = angular.copy(variable);
-        }
-        //Remove Variable.
-        $scope.remove = function(type, id){
-            var idx = _getIndexVariable(type, id);
-            if(idx >= 0){
-                $scope.model.variables[type].splice(idx, 1);
-            }
-        }
-        
-        $scope.save = function(type, id){
-           var idx = _getIndexVariable(type, id);
-           var variable = $scope.formInputs[type][id];
-           if(idx >= 0){
-               delete variable.edit;
-               $scope.model.variables[type][idx] = angular.copy(variable);
-           }else{
-               $scope.model.variables[type].push(angular.copy(variable));
-               if(type == 'input'){
-                   $scope.inputsAddMode = false;
-               }else{
-                   $scope.outputsAddMode = false;
-               }
-           }
-
-           $scope.formInputs[type][id] = {};
-            
-        }
-        
-        $scope.cancel = function(type, id){
-            var idx = _getIndexVariable(type, id);
-            if(idx >= 0){
-                delete $scope.model.variables[type][idx].edit;
-            }else{
-                if(type == 'input'){
-                   $scope.inputsAddMode = false;
-               }else{
-                   $scope.outputsAddMode = false;
-               }
-            }
-            $scope.formInputs[type][id] = {};
-        }
-        
-        
-
-        //Check Variable
-        $scope.isValid = function(variable){
-            return (variable.name && variable.name.length) && (variable.description && variable.description.length);
-        }
+        $scope.originalModel = angular.copy($scope.model);
+        $scope.inputHeaders = ["Input Variable", "Description", "Actions"];
+        $scope.outputHeaders = ["Ouput Variable", "Description", "Actions"];
 
         //Load Tags
         $scope.loadTags = function(text){
@@ -421,12 +416,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         
         
-    }])
-    .controller('tableCtrl', ['$scope', function($scope){
-        //Form inputs.
-        $scope.formInputs = {};
-         
-
     }])
     .controller('saveModelCtrl', ['$scope', 'X2JS', 'SweetAlert', function($scope, X2JS, SweetAlert){
         //Reset Model

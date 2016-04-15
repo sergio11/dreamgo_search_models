@@ -1,53 +1,53 @@
-<a href="javascript:void(0)" ng-click="inputsAddMode = true" ng-disabled="inputsAddMode" class="btn btn-raised btn-primary btn-xs">
-    <span class="glyphicon glyphicon-plus"></span>&nbsp;Add Input Variable
-</a>
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>Input Variable</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr class="info" ng-if="!model.variables.input.length && !inputsAddMode">
-            <td class='text-center' colspan='3'>There are no specified input variables</td>
-        </tr>
-        <tr ng-repeat="variable in model.variables.input">
-            <td ng-if="variable.edit"><input type="text" name="variable" ng-model="formInputs['input'][variable.id].name"/></td>
-            <td ng-if="!variable.edit">{{variable.name}}</td>
-            <td ng-if="variable.edit"><input type="text" name="description" ng-model="formInputs['input'][variable.id].description"/></td>
-            <td ng-if="!variable.edit">{{variable.description}}</td>
-            <td nowrap class="text-center" ng-if="!variable.edit">
-                <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit('input', variable)">
-                    <span class="glyphicon glyphicon-pencil"></span> Edit
-                </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove('input', variable.id)">
-                    <span class="glyphicon glyphicon-trash"></span> Remove
-                </button>
-            </td>
-            <td nowrap class="text-center" ng-if="variable.edit">
-                <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save('input', variable.id)">
-                    <span class="glyphicon glyphicon-floppy-disk"></span> Save
-                </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('input', variable.id)">
-                    <span class="glyphicon glyphicon-remove"></span> Cancel
-                </button>
-            </td>
-        </tr>
-        <tr ng-if="inputsAddMode" ng-init="nextId = getNextId('input')">
-            <input type="hidden" name="id" ng-model="formInputs['input'][nextId].id" ng-init="formInputs['input'][nextId].id = nextId"/>
-            <td><input type="text" name="variable" ng-model="formInputs['input'][nextId].name" required/></td>
-            <td><input type="text" name="description" ng-model="formInputs['input'][nextId].description" required/></td>
-            <td nowrap class="text-center">
-                 <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!isValid(formInputs['input'][nextId])" ng-click="save('input', nextId)">
-                     <span class="glyphicon glyphicon-floppy-disk"></span> Save
-                 </button>
-                <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel('input', nextId)">
-                     <span class="glyphicon glyphicon-remove"></span> Cancel
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div>
+    <a href="javascript:void(0)" ng-click="addMode = true" ng-disabled="addMode" class="btn btn-raised btn-primary btn-xs">
+        <span class="glyphicon glyphicon-plus"></span>&nbsp;{{addBtnText}}
+    </a>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th ng-repeat="head in headers">{{head}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="info" ng-if="!source.length && !addMode">
+                <td class='text-center' colspan='3'>{{noDataMsg}}</td>
+            </tr>
+            <tr ng-repeat="item in source">
+                <td ng-if="item.edit"><input type="text" name="name" ng-model="formInputs[item.id].name"/></td>
+                <td ng-if="!item.edit">{{item.name}}</td>
+                <td ng-if="item.edit"><input type="text" name="description" ng-model="formInputs[item.id].description"/></td>
+                <td ng-if="!item.edit">{{item.description}}</td>
+                <td nowrap class="text-center" ng-if="!item.edit">
+                    <button type="button" class="btn btn-raised btn-info btn-xs" ng-click="edit(item)">
+                        <span class="glyphicon glyphicon-pencil"></span> Edit
+                    </button>
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="remove(item.id)">
+                        <span class="glyphicon glyphicon-trash"></span> Remove
+                    </button>
+                </td>
+                <td nowrap class="text-center" ng-if="item.edit">
+                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-click="save(item.id)">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Save
+                    </button>
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel(item.id)">
+                        <span class="glyphicon glyphicon-remove"></span> Cancel
+                    </button>
+                </td>
+            </tr>
+            <tr ng-if="addMode" ng-init="nextId = getNextId()">
+                <input type="hidden" name="id" ng-model="formInputs[nextId].id" ng-init="formInputs[nextId].id = nextId"/>
+                <td><input type="text" name="variable" ng-model="formInputs[nextId].name" /></td>
+                <td><input type="text" name="description" ng-model="formInputs[nextId].description" /></td>
+                <td nowrap class="text-center">
+                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!isValid(formInputs[nextId])" ng-click="save(nextId)">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Save
+                    </button>
+                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-click="cancel(nextId)">
+                        <span class="glyphicon glyphicon-remove"></span> Cancel
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
                     
