@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert', 'flock.bootstrap.material'])
+angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -95,8 +95,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             },
             controller: ['$scope', function($scope){
                 
-                console.log("Data Table controller ...");
-                
                 $scope.formInputs = {};
                 $scope.addMode = false;
                 
@@ -159,6 +157,33 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             }],
             templateUrl: 'templates/data-table.html'
         }
+    })
+    .directive("saveModel",function() {
+        return {
+            restrict: "A",
+            scope: { model : '=saveModel' },
+            controller: ['$scope', 'X2JS', function($scope, X2JS){
+                //Save Model
+                $scope.saveModel = function(){
+                    console.log("Model : " , $scope.model);
+                    var content = X2JS.json2xml_str( $scope.model );
+                    var xmlAsStr = "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
+                    console.log("El XML resultante : " , xmlAsStr);
+                }
+            }],
+            link: function(scope, element, attributes) {
+                element.bind('click', scope.saveModel);
+            }
+        };
+    })
+    .directive("ngMaterial", function(){
+        return {
+            restrict: "A",
+            controller: function(){
+                $.material.init();
+            }
+        }
+        
     })
     .controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
 
@@ -324,9 +349,15 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             }
         }
 
-        $scope.originalModel = angular.copy($scope.model);
+        
         $scope.inputHeaders = ["Input Variable", "Description", "Actions"];
         $scope.outputHeaders = ["Ouput Variable", "Description", "Actions"];
+        
+        $scope.original = angular.copy($scope.model);
+        //Reset Model
+        $scope.reset = function(){
+          $scope.model = $scope.original;
+        }
 
         //Load Tags
         $scope.loadTags = function(text){
@@ -334,9 +365,30 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 return response.data.terms; 
             });
         }
+        
+        
 
     }])
     .controller('optimizationCtrl', ['$scope', function($scope){
+        
+        $scope.model = {
+            name: '',
+            tags:{
+                tag: []
+            },
+            objetiveFunction: '',
+            variables: [],
+            constraints: []
+        }
+        
+        $scope.original = angular.copy($scope.model);
+        //Reset Model
+        $scope.reset = function(){
+          $scope.model = $scope.original;
+        }
+        
+        $scope.variablesHeaders = ["Variable", "Description", "Actions"];
+        $scope.constraintsHeaders = ["Constraint", "Description", "Actions"];
         
     }])
     .controller('tagsCtrl', ['$scope' , 'TermsService', 'ModelsService', 'SweetAlert',  function($scope, TermsService, ModelsService, SweetAlert){
@@ -417,21 +469,3 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         
         
     }])
-    .controller('saveModelCtrl', ['$scope', 'X2JS', 'SweetAlert', function($scope, X2JS, SweetAlert){
-        //Reset Model
-        $scope.reset = function(){
-            $scope.$parent.model = $scope.$parent.originalModel;
-        }
-        //Save Model
-        $scope.saveModel = function(){
-            var variables = $scope.$parent.model.variables;
-            if(variables.input.length && variables.output.length){
-                var content = X2JS.json2xml_str( $scope.$parent.model );
-                var xmlAsStr = "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
-                console.log("El XML resultante : " , xmlAsStr);
-            }else{
-                SweetAlert.swal("Here's a message!", "It's pretty, isn't it?");
-            }
-        }
-
-    }]);

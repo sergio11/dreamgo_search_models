@@ -1,9 +1,13 @@
-<div class="container anim-slide-below>
+<div class="container anim-slide-below" ng-material>
     <div class="row row-separate">
         <div class="panel panel-primary">
             <div class="panel-heading">Prediction Model</div>
             <div class="panel-body">
-                <div ng-include="'templates/model-form.html'"></div>
+                <div class="row row-separate">
+                    <div class="col-xs-12 col-md-9">
+                        <div ng-include="'templates/model-form.html'"></div>
+                    </div>
+                </div>
                 <div class="row row-separate">
                     <div class="col-sm-12 col-md-6">
                         <datatable source="model.variables.input"  headers="inputHeaders" no-data-msg="There are no specified input variables" add-btn-text="Add Input Variable" ></datatable>
