@@ -33,7 +33,6 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             })
 
     } ])
-    .service('X2JS', function(){ return new X2JS() })
     .service('ModelsService', ['$http', function ($http) {
 
         //Save Tags for model
@@ -46,6 +45,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                     }
 
                 });
+        }
+        
+        //Save Prediction Model
+        this.savePredictionModel = function(model){
+            return $http.post('/models/public/api.php/prediction-model', {'model': model});
         }
 
         //Delete Tags for model
@@ -162,13 +166,17 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         return {
             restrict: "A",
             scope: { model : '=saveModel' },
-            controller: ['$scope', 'X2JS', function($scope, X2JS){
+            controller: ['$scope',  'ModelsService', 'SweetAlert', function($scope, ModelsService, SweetAlert){
                 //Save Model
                 $scope.saveModel = function(){
-                    console.log("Model : " , $scope.model);
-                    var content = X2JS.json2xml_str( $scope.model );
-                    var xmlAsStr = "<?xml version='1.0' encoding='UTF-8' ?><model>"+content+"</model>";
-                    console.log("El XML resultante : " , xmlAsStr);
+                    ModelsService.savePredictionModel($scope.model).then(function(response){
+                        var data = response.data;
+                        if(!data.error){
+                            SweetAlert.swal("Saved!", data.msg, "success");
+                        }else{
+                            SweetAlert.swal("Error!", data.msg, "error");
+                        }
+                    })
                 }
             }],
             link: function(scope, element, attributes) {

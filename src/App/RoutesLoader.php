@@ -44,6 +44,8 @@ class RoutesLoader
         $api->get('/models', "models.controller:getAll");
         //POST Model
         $api->post('/models', "models.controller:save");
+        //POST Prediction Model
+        $api->post('/prediction-model', "models.controller:savePredictionModel");
         //DELETE Model
         $api->delete('/models/{id}', "models.controller:delete");
         //GET Paginate Models.

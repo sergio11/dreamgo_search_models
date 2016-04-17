@@ -4,7 +4,9 @@ use Silex\Application;
 use Silex\Provider\HttpCacheServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
+use Silex\Provider\SerializerServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
+use Neutron\Silex\Provider\FilesystemServiceProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,6 +45,8 @@ $app->before(function (Request $request) {
 });
 
 $app->register(new ServiceControllerServiceProvider());
+$app->register(new SerializerServiceProvider());
+$app->register(new FilesystemServiceProvider());
 
 $app->register(new DoctrineServiceProvider(), array(
 	'dbs.options' => array (

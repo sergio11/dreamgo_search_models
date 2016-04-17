@@ -5,6 +5,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 
 class ModelsController
@@ -47,8 +48,20 @@ class ModelsController
         return new JsonResponse(array('id' => $id));
 
     }
-
-   
+    
+    public function savePredictionModel(Application $app, Request $request){
+        $model = $request->request->get('model');
+        $filename = preg_replace('/[^a-zA-Z0-9-_\.]/','', strtolower($model['name']));
+        $file  = $app['upload_file_dir'] . $filename . ".xml";
+        $modelXML = $app['serializer']->serialize(array('model' => $model), 'xml');
+        try {
+            $app['filesystem']->dumpFile($file, $modelXML);
+            $response = array('error' => false, 'msg' => 'model created succesfully');
+        } catch (IOExceptionInterface $e) {
+            $response = array('error' => true, 'msg' => "There was an error creating the file ".$model['name']);
+        }
+        return new JsonResponse($response);
+    }
 
     public function delete(Application $app, $id)
     {
