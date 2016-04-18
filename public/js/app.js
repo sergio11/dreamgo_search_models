@@ -1,7 +1,7 @@
 'use strict';
 
 
-angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
+var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -33,7 +33,12 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             })
 
     } ])
-    .service('ModelsService', ['$http', function ($http) {
+
+    /*
+        Services
+        ===============
+    */
+    app.service('ModelsService', ['$http', function ($http) {
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
@@ -86,8 +91,14 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             return $http.get('/api.php/terms/' + text);
         }
         
-    }])
-    .directive('datatable', function(){
+    }]);
+
+    /*
+        Directives
+        ================
+    */
+
+    app.directive('datatable', function(){
         return {
             restrict: 'E',
             replace: true,
@@ -200,8 +211,14 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             }
         }
         
-    })
-    .controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
+    });
+
+    /*
+        Controllers
+        =====================
+    */
+
+    app.controller('addModelCtrl', ['$scope', 'ModelsService', 'TermsService', 'FileUploader', 'SweetAlert', function ($scope, ModelsService, TermsService, FileUploader, SweetAlert) {
 
         $scope.alerts = [];
         $scope.models = [];
@@ -413,14 +430,36 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 tag: []
             },
             objetiveFunction: '',
-            variables: [],
-            constraints: []
+            variables: {
+                variable: []
+            },
+            constraints: {
+                constraint: []
+            }
         }
         
         $scope.original = angular.copy($scope.model);
         //Reset Model
         $scope.reset = function(){
           $scope.model = $scope.original;
+        }
+
+        //Model Saved
+        $scope.onModelSave = function(message){
+            SweetAlert.swal("Saved!", message, "success");
+            $scope.model = $scope.original;
+        }
+
+        //Model Error
+        $scope.onModelSavedError = function(message){
+            SweetAlert.swal("Error!", message, "error");
+        }
+
+         //Load Tags
+        $scope.loadTags = function(text){
+            return TermsService.getMatchingTerms(text).then(function(response){
+                return response.data.terms; 
+            });
         }
         
         $scope.variablesHeaders = ["Variable", "Description", "Actions"];
@@ -503,5 +542,4 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             }
         }
         
-        
-    }])
+    }]);
