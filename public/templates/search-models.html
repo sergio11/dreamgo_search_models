@@ -40,7 +40,7 @@
                     <td>{{model.createAt | date:'dd-MMM-yy HH:mm'}}</td>
                     <td nowrap>{{ model.size/1024/1024|number:2}} MB</td>
                     <td class="text-center" nowrap>
-                        <a ng-href="/public/uploads/{{ model.name }}" download class="btn btn-raised btn-primary btn-xs">
+                        <a ng-href="/public/uploads/{{ model.filename }}" download class="btn btn-raised btn-primary btn-xs">
                              <span class="glyphicon glyphicon-download"></span> Download
                         </a>
                         <button type="button" class="btn btn-raised btn-info btn-xs" uib-popover-template="'tags-input.html'" popover-title="Tags for {{model.name}}">

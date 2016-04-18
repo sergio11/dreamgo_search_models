@@ -211,9 +211,9 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         // Upload custom filter
         $scope.uploader.filters.push({
-            name: 'xmlFilter',
+            name: 'mimeTypeFilter',
             fn: function (item /*{File|FileLikeObject}*/, options) {
-                var excel_mime_types = [
+                var mime_types_allowed = [
                     'application/vnd.ms-excel',
                     'application/msexcel',
                     'application/x-msexcel',
@@ -222,9 +222,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                     'application/x-dos_ms_excel',
                     'application/xls',
                     'application/x-xls',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                 ]
-                return excel_mime_types.indexOf(item.type) >= 0;
+                return mime_types_allowed.indexOf(item.type) >= 0;
                 //return this.queue.length < 10;
             }
         });
@@ -238,8 +240,8 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         // File adding failed.
         $scope.uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
             var msg = null;
-            if (filter.name == 'xmlFilter') {
-                msg = "You can only upload files xls"
+            if (filter.name == 'mimeTypeFilter') {
+                msg = "You can only upload files xls or doc"
             }
             $scope.alerts.push({ type: 'danger', msg: msg });
         };

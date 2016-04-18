@@ -1,13 +1,9 @@
 <?php
-/**
- * This file is part of the array_column library
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * @copyright Copyright (c) Ben Ramsey (http://benramsey.com)
- * @license http://opensource.org/licenses/MIT MIT
- */
+
+function generateFilename($name){
+    return  mt_rand(). "_" . preg_replace('/[^a-zA-Z0-9-_\.]/','', strtolower($name));
+}
+
 
 if (!function_exists('array_column')) {
     /**

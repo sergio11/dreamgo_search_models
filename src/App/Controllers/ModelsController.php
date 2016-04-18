@@ -39,8 +39,8 @@ class ModelsController
         $file = $request->files->get('file');
         //get filename
         $filename = $file->getClientOriginalName();
-        //file name sanitized
-        $filenameSanitized = $app['generate_filename']($filename);
+        //generate file name sanitized
+        $filenameSanitized = generateFilename($filename);
         //get size
         $size = $file->getClientSize();
         //save model
@@ -53,7 +53,8 @@ class ModelsController
     
     public function savePredictionModel(Application $app, Request $request){
         $model = $request->request->get('model');
-        $filename = $app['sanitize_filename']($model['name']);
+        //generate file name
+        $filename = generateFilename($model['name']);
         $file  = $app['upload_file_dir'] . $filename . ".xml";
         $modelXML = $app['serializer']->serialize(array('model' => $model), 'xml');
         try {
