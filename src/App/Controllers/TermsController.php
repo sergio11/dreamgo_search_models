@@ -25,15 +25,9 @@ class TermsController
 
     public function save(Application $app, Request $request)
     {
-         $ids = [];
          $tags = $this->getDataFromRequest($request);
-         $allTags = array_column($this->termsService->getAll(), 'text', 'id');
-         for($i = 0, $len = count($tags); $i < $len; $i++){
-             $id = array_search($tags[$i]['text'], $allTags);
-             $ids[] = $id ? $id : $this->termsService->save($tags[$i]);
-         }
-
-          return new JsonResponse(array('error' => false, 'ids' => $ids));
+         $ids = $this->termsService->saveTags($tags);
+         return new JsonResponse(array('error' => false, 'ids' => $ids));
     }
 
     public function match($text){
