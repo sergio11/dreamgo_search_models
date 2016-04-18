@@ -12,10 +12,14 @@ class ModelsController
 {
 
     protected $modelsService;
+    protected $modelsTaggedService;
+    protected $termsService;
 
-    public function __construct($service)
+    public function __construct($modelsService, $modelsTaggedService, $termsService)
     {
-        $this->modelsService = $service;
+        $this->modelsService = $modelsService;
+        $this->modelsTaggedService = $modelsTaggedService;
+        $this->termsService = $termsService;
     }
 
     public function getAll()
@@ -48,14 +52,21 @@ class ModelsController
         $path = $app['upload_file_dir'];
         $file->move($path,$filenameSanitized);
         return new JsonResponse(array('id' => $id));
-
     }
     
     public function savePredictionModel(Application $app, Request $request){
+
         $model = $request->request->get('model');
         //generate file name
-        $filename = generateFilename($model['name']);
-        $file  = $app['upload_file_dir'] . $filename . ".xml";
+        $filename = generateFilename($model['name']. ".xml");
+        //save model
+        $id = $this->modelsService->save(array('name' => $model['name'], 'filename' => $filename, 'size' => 0));
+        //save new tags
+        $tags = $this->termsService->saveTags($model['tags']['tag']);
+        //save model tags
+        $this->modelsTaggedService->saveModelTags($tags, $id);
+
+        $file  = $app['upload_file_dir'] . $filename;
         $modelXML = $app['serializer']->serialize(array('model' => $model), 'xml');
         try {
             $app['filesystem']->dumpFile($file, $modelXML);

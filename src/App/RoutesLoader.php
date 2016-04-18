@@ -18,7 +18,7 @@ class RoutesLoader
     private function instantiateControllers()
     {
         $this->app['models.controller'] = $this->app->share(function () {
-            return new Controllers\ModelsController($this->app['models.service']);
+            return new Controllers\ModelsController($this->app['models.service'], $this->app['models.tagged.service'], $this->app['terms.service']);
         });
         $this->app['terms.controller'] = $this->app->share(function () {
             return new Controllers\TermsController($this->app['terms.service']);

@@ -23,10 +23,7 @@ class ModelsTaggedController
 
     public function saveTags(Request $request, $model){
         $tags = $request->request->get("tags");
-        $ids = [];
-        for($i = 0, $len = count($tags); $i < $len; $i++){
-            $ids[] = $this->modelsTaggedService->saveModelTag(array('idmodel' => $model, 'idterm' => $tags[$i]));
-        }
+        $this->modelsTaggedService->saveModelTags($tags, $model);
         return new JsonResponse(array('ids' => $tags));
     }
 

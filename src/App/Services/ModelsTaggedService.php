@@ -18,4 +18,12 @@ class ModelsTaggedService extends BaseService
         return $this->db->delete("models_tagged", $modelTag);
     }
 
+    public function saveModelTags($tags, $model){
+        $ids = [];
+        for($i = 0, $len = count($tags); $i < $len; $i++){
+            $ids[] = $this->saveModelTag(array('idmodel' => $model, 'idterm' => $tags[$i]));
+        }
+        return $ids;
+    }
+
 }
