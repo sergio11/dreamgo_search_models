@@ -39,19 +39,21 @@ class ModelsController
         $file = $request->files->get('file');
         //get filename
         $filename = $file->getClientOriginalName();
+        //file name sanitized
+        $filenameSanitized = $app['generate_filename']($filename);
         //get size
         $size = $file->getClientSize();
         //save model
-        $id = $this->modelsService->save(array('name' => $filename, 'size' => $size));
+        $id = $this->modelsService->save(array('name' => $filename, 'filename' => $filenameSanitized, 'size' => $size));
         $path = $app['upload_file_dir'];
-        $file->move($path,$filename);
+        $file->move($path,$filenameSanitized);
         return new JsonResponse(array('id' => $id));
 
     }
     
     public function savePredictionModel(Application $app, Request $request){
         $model = $request->request->get('model');
-        $filename = preg_replace('/[^a-zA-Z0-9-_\.]/','', strtolower($model['name']));
+        $filename = $app['sanitize_filename']($model['name']);
         $file  = $app['upload_file_dir'] . $filename . ".xml";
         $modelXML = $app['serializer']->serialize(array('model' => $model), 'xml');
         try {

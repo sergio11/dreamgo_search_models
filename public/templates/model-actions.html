@@ -1,4 +1,4 @@
 <div class="col-xs-12 text-center">
-    <a href="javascript:void(0)" class="btn btn-raised btn-success" save-model="model">Save</a>
+    <save-model model="model" on-save="onModelSave(message)" on-error="onModelSavedError(message)"></save-model>
     <a href="javascript:void(0)" class="btn btn-raised btn-danger" ng-click="reset()">Cancel</a>
 </div>

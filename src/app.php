@@ -85,5 +85,9 @@ $app->error(function (\Exception $e, $code) use ($app) {
 
 //save upload Dir
 $app['upload_file_dir'] = ROOT_PATH . '/public/uploads/';
+//sanitize filename
+$app['generate_filename'] = function($name){
+    return preg_replace('/[^a-zA-Z0-9-_\.]/','', strtolower($name)) . mt_rand();
+}
 
 return $app;

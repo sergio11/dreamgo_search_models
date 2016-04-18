@@ -164,19 +164,27 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
     })
     .directive("saveModel",function() {
         return {
-            restrict: "A",
-            scope: { model : '=saveModel' },
-            controller: ['$scope',  'ModelsService', 'SweetAlert', function($scope, ModelsService, SweetAlert){
+            restrict: "E",
+            scope: { 
+                model : '=',
+                onSave: '&',
+                onError: '&'
+            },
+            template: "<a href='javascript:void(0)' class='btn btn-raised btn-success'>Save</a>",
+            controller: ['$scope',  'ModelsService', function($scope, ModelsService){
                 //Save Model
                 $scope.saveModel = function(){
-                    ModelsService.savePredictionModel($scope.model).then(function(response){
+                    ModelsService.savePredictionModel($scope.model)
+                    .then(function(response){
                         var data = response.data;
-                        if(!data.error){
-                            SweetAlert.swal("Saved!", data.msg, "success");
+                        if(data.error == false){
+                            $scope.onSave({message: data.msg});
                         }else{
-                            SweetAlert.swal("Error!", data.msg, "error");
+                            $scope.onError({message: "The model can not be saved"});
                         }
-                    })
+                    },function(err){
+                        $scope.onError({message: "The model can not be saved"});
+                    });
                 }
             }],
             link: function(scope, element, attributes) {
@@ -343,7 +351,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
             $scope.totalModels = response.data;
         })
     }])
-    .controller('predictionCtrl', ['$scope', 'TermsService', function($scope, TermsService){
+    .controller('predictionCtrl', ['$scope', 'TermsService', 'SweetAlert', function($scope, TermsService, SweetAlert){
 
         $scope.model = {
             name: '',
@@ -362,6 +370,18 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.outputHeaders = ["Ouput Variable", "Description", "Actions"];
         
         $scope.original = angular.copy($scope.model);
+
+        //Model Saved
+        $scope.onModelSave = function(message){
+            SweetAlert.swal("Saved!", message, "success");
+            $scope.model = $scope.original;
+        }
+
+        //Model Error
+        $scope.onModelSavedError = function(message){
+            SweetAlert.swal("Error!", message, "error");
+        }
+
         //Reset Model
         $scope.reset = function(){
           $scope.model = $scope.original;
