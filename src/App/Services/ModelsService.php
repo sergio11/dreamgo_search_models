@@ -13,7 +13,7 @@ class ModelsService extends BaseService
     public function get($start,$count,$tags,$orderBy){
         
         if($tags){
-            $query = "SELECT DISTINCT id, name, size, createAt FROM models M JOIN models_tagged MT ON(M.id = MT.idmodel) WHERE MT.idterm IN ($tags)";
+            $query = "SELECT DISTINCT id, name, filename, size, createAt FROM models M JOIN models_tagged MT ON(M.id = MT.idmodel) WHERE MT.idterm IN ($tags)";
         }else{
             $query = "SELECT * FROM models";
         }
@@ -31,7 +31,7 @@ class ModelsService extends BaseService
     }
     
     public function getModelById($id){
-        $statement = $this->db->executeQuery('SELECT name FROM models WHERE id = :model', array(':model' => $id));
+        $statement = $this->db->executeQuery('SELECT * FROM models WHERE id = :model', array(':model' => $id));
         return $statement->fetch();
     }
 

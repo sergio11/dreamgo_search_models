@@ -55,7 +55,7 @@ $app->register(new DoctrineServiceProvider(), array(
             'host'      => 'localhost',
             'dbname'    => 'dreamgo',
             'user'      => 'root',
-            'password'  => '',
+            'password'  => 'dreamgo00',
             'charset'   => 'utf8mb4',
         )
     )

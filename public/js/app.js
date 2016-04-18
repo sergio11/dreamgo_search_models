@@ -37,11 +37,11 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/models/public/api.php/terms', { 'tags': tags })
+            return $http.post('/api.php/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/models/public/api.php/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/api.php/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
@@ -49,21 +49,21 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         
         //Save Prediction Model
         this.savePredictionModel = function(model){
-            return $http.post('/models/public/api.php/prediction-model', {'model': model});
+            return $http.post('/api.php/prediction-model', {'model': model});
         }
 
         //Delete Tags for model
         this.deleteTags = function(model, tags){
-            return $http.delete('/models/public/api.php/models/' + model + '/tags/'+ tags);
+            return $http.delete('/api.php/models/' + model + '/tags/'+ tags);
         }
 
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/models/public/api.php/models/' + model + '/tags');
+            return $http.get('/api.php/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count, tags, orderBy) {
-            return $http.get('/models/public/api.php/models/' + start + '/' + count, {
+            return $http.get('/api.php/models/' + start + '/' + count, {
                 params:{
                     tags: tags,
                     orderBy: orderBy
@@ -72,18 +72,18 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/models/public/api.php/models/count');
+            return $http.get('/api.php/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/models/public/api.php/models/'+idModel);
+            return $http.delete('/api.php/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/models/public/api.php/terms/' + text);
+            return $http.get('/api.php/terms/' + text);
         }
         
     }])
@@ -206,7 +206,7 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
         $scope.alerts = [];
         $scope.models = [];
         $scope.uploader = new FileUploader({
-            url: '/models/public/api.php/models'
+            url: '/api.php/models'
         });
 
         // Upload custom filter
@@ -339,8 +339,14 @@ angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 
                 }, function(isConfirm){ 
                    if (isConfirm) {
                        ModelsService.deleteModel(model.id).then(function(response){
-                           $scope.models.splice(idx,1);
-                           SweetAlert.swal("Deleted!", model.name + " has been deleted.", "success");
+                           var data = response.data;
+                           if(data.error == false){
+                               $scope.models.splice(idx,1);
+                               SweetAlert.swal("Deleted!", data.msg, "success");
+                           }else{
+                               SweetAlert.swal("Failed!", data.msg, "error");
+                           }
+                           
                        });
                    }else{
                        SweetAlert.swal("Cancelled", model.name + " is safe :)", "error");

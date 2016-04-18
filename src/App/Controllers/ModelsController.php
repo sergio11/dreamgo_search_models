@@ -68,10 +68,22 @@ class ModelsController
 
     public function delete(Application $app, $id)
     {
-        $model = $this->modelsService->getModelById($id);
-        $result = $this->modelsService->delete($id);
-        $result && @unlink($app['upload_file_dir'] . $model['name']);
-        return new JsonResponse($result);
+        
+        try {
+            $model = $this->modelsService->getModelById($id);
+            if($model){
+                $this->modelsService->delete($id);
+                $filename = $app['upload_file_dir'] . $model['filename'];
+                $app['filesystem']->remove($filename);
+                $response = array('error' => false, 'msg' => 'model dropped succesfully');
+            }else{
+                $response = array('error' => true, 'msg' => 'The model was not found');
+            }
+            
+        } catch (IOExceptionInterface $e) {
+            $response = array('error' => true, 'msg' => "There was an error dropping the model ".$model['name']);
+        }
+        return new JsonResponse($response);
     }
 
 }
