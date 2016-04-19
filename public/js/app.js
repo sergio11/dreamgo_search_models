@@ -178,11 +178,14 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
             restrict: "E",
             scope: { 
                 model : '=',
+                enable: '&',
                 onSave: '&',
                 onError: '&'
             },
-            template: "<a href='javascript:void(0)' class='btn btn-raised btn-success'>Save</a>",
+            template: "<a href='javascript:void(0)' class='btn btn-raised btn-success' ng-disabled='!enable()'>Save</a>",
             controller: ['$scope',  'ModelsService', function($scope, ModelsService){
+
+                console.log("Enable : ", $scope.enable());
                 //Save Model
                 $scope.saveModel = function(){
                     ModelsService.savePredictionModel($scope.model)
@@ -469,6 +472,11 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
             $scope.model = $scope.original;
         }
 
+        //Check Model Validation status.
+        $scope.isValid = function(){
+            return ($scope.model.name && $scope.model.objetiveFunction && $scope.model.variables.input.length && $scope.model.variables.output.length) ? true : false;
+        }
+
         //Model Error
         $scope.onModelSavedError = function(message){
             SweetAlert.swal("Error!", message, "error");
@@ -527,6 +535,11 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
             return TermsService.getMatchingTerms(text).then(function(response){
                 return response.data.terms; 
             });
+        }
+
+        //Check Model Validation status.
+        $scope.isValid = function(){
+            return ($scope.model.name && $scope.model.objetiveFunction && $scope.model.variables.variable.length && $scope.model.constraints.constraint.length) ? true : false;
         }
         
         $scope.variablesHeaders = ["Variable", "Description", "Actions"];
