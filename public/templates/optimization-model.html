@@ -9,12 +9,12 @@
                             <div ng-include="'templates/model-form.html'"></div>
                         </div>
                         <div class="col-sm-12 col-md-6">
-                            <datatable source="model.variables"  headers="variablesHeaders" no-data-msg="There are no specified variables" add-btn-text="Add Variable" ></datatable>
+                            <datatable source="model.variables.variable"  headers="variablesHeaders" no-data-msg="There are no specified variables" add-btn-text="Add Variable" ></datatable>
                         </div>
                     </div>
                     <div class="row row-separate">
                         <div class="col-sm-12">
-                            <datatable source="model.constraints"  headers="constraintsHeaders" no-data-msg="There are no specified constraints" add-btn-text="Add Constraint" ></datatable>
+                            <datatable source="model.constraints.constraint"  headers="constraintsHeaders" no-data-msg="There are no specified constraints" add-btn-text="Add Constraint" ></datatable>
                         </div>
                     </div>
                 </div>
