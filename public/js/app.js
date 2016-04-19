@@ -380,10 +380,18 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         $scope.maxSize = 5;
         $scope.models = [];
         $scope.tags = [];
+        $scope.loading = false;
+        $scope.filter = false;
 
         $scope.getModels = function(){
+            if($scope.tags.length){
+                $scope.filter = true;
+            }else{
+                $scope.filter = false;
+            }
             var tags = $scope.tags.map(function(tag){ return tag.id}).join(",");
             var start = $scope.itemsPerPage * ($scope.currentPage - 1);
+            $scope.loading = true;
             ModelsService.getModels(start, $scope.itemsPerPage, tags, $scope.orderBy ).then(function(response){
                 response.data.forEach(function(model){
                     model.tags.forEach(function(tag){
@@ -391,6 +399,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
                     });
                 });
                 $scope.models = response.data;
+                $scope.loading = false;
             });
         }
 
@@ -403,6 +412,10 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         $scope.changeOrder = function(order){
             $scope.orderBy = order;
             $scope.getModels();
+        }
+
+        $scope.getTotalItems = function(){
+            return !$scope.filter ? $scope.totalModels : $scope.models.length;
         }
 
         //Delete model
