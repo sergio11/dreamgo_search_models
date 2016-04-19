@@ -1,7 +1,7 @@
 <div class="container anim-slide-below" nv-file-drop uploader="uploader" filters="queueLimit, mimeTypeFilter" ng-material>
     
     <div class="page-header">
-        <h2>Upload Models <small>Spooled files: {{ uploader.queue.length }}</small></h2>
+        <h2>Upload items <small>Spooled files: {{ uploader.queue.length }}</small></h2>
     </div>
    
    <!-- Alerts -->
@@ -85,26 +85,12 @@
             
         </div>
     </div>
-    
-    <!-- ng templates -->
-    
+
+    <!-- ng template -->
     <script type="text/ng-template" id="tags-input.html">
-        <div class="text-center" ng-controller="tagsCtrl">
-            <div>
-                <tags-input ng-model="$parent.models[$index].tags">
-                    <auto-complete source="loadTags($query)"></auto-complete>
-                </tags-input>
-                <div class="text-center">
-                    <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!hasTags(item.id) || !hasNotSyncTags(item.id)"  ng-click="saveTags(item.id)">
-                        <span class="glyphicon glyphicon-ok"></span>
-                    </button>
-                    <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!hasTags(item.id)" ng-click="dropTags(item.id)">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </button>
-                </div>
-            </div>
-         </div>
+        <tags-selector model="models[$index]"></tags-selector>
     </script>
+    
     
 </div>
 

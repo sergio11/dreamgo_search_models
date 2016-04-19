@@ -67,26 +67,11 @@
         </div>
     </div>
 
-     <!-- ng templates -->
-
     
+    <!-- ng template -->
     <script type="text/ng-template" id="tags-input.html">
-        <div ng-controller="tagsCtrl">
-            <tags-input ng-model="model.tags">
-                <auto-complete source="loadTags($query)"></auto-complete>
-            </tags-input>
-            <div class="text-center">
-               <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!hasTags(model.id) || !hasNotSyncTags(model.id)"  ng-click="saveTags(model.id)">
-                  <span class="glyphicon glyphicon-ok"></span>
-               </button>
-               <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!hasTags(model.id)" ng-click="dropTags(model.id)">
-                  <span class="glyphicon glyphicon-remove"></span>
-               </button>
-            </div>
-         </div>
+        <tags-selector model="model"></tags-selector>
     </script>
-    
-    
 
    
     
