@@ -1,15 +1,19 @@
 <div class="text-center">
     <div>
-        <tags-input ng-model="model.tags">
+        <tags-input ng-model="model.tags" on-tag-removed="remove($tag)">
             <auto-complete source="loadTags($query)"></auto-complete>
         </tags-input>
         <div class="text-center">
-            <button type="button" class="btn btn-raised btn-success btn-xs" ng-disabled="!hasTags() || !hasNotSyncTags()"  ng-click="saveTags()">
-                <span class="glyphicon glyphicon-ok"></span>
+            <button type="button" uib-tooltip="Save the tags" tooltip-placement="bottom" class="btn btn-raised btn-success btn-xs" ng-disabled="!hasTags() || !hasNotSyncTags()"  ng-click="sync()">
+                <span class="glyphicon glyphicon-floppy-disk"></span>
             </button>
-            <button type="button" class="btn btn-raised btn-danger btn-xs" ng-disabled="!hasTags()" ng-click="dropTags()">
-                <span class="glyphicon glyphicon-remove"></span>
+            <button type="button" uib-tooltip="Remove all tags" tooltip-placement="bottom" class="btn btn-raised btn-danger btn-xs" ng-disabled="!hasTags()" ng-click="dropTags()">
+                <span class="glyphicon glyphicon-trash"></span>
             </button>
+            <button type="button" uib-tooltip="Discard changes" tooltip-placement="bottom" class="btn btn-raised btn-warning btn-xs" ng-disabled="!hasNotSyncTags()" ng-click="discardChanges()">
+                <span class="glyphicon glyphicon-repeat"></span>
+            </button>
+            
         </div>
     </div>
 </div>
