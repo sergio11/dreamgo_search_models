@@ -68,6 +68,10 @@
     margin: 0;
 }
 
+.table tbody tr td:nth-child(1) {
+    text-transform: capitalize;
+}
+
 
 
 /* Alerts */
