@@ -5,23 +5,24 @@
     </div>
 
     <div class="row row-separate">
-        <div class="col-sm-6">
-            <form name="searchModelsForm" ng-submit="getModels()">
+        <form name="searchModelsForm" class="form-inline" role="form" ng-submit="getModels()">
+            <div class="form-group form-group-taginput col-sm-6">
                 <div class="input-group">
                     <span class="input-group-addon glyphicon glyphicon-tags"></span>
-                    <tags-input ng-model="tags" ng-disabled="loading" add-on-paste="true" placeholder="add tag to filter ..." add-from-autocomplete-only="true" class="form-control" key-property="id" display-property="text" ng-disabled="!totalModels">
+                    <tags-input ng-model="tags" uib-tooltip="Enter the tags by filter" ng-disabled="loading" add-on-paste="true" placeholder="add tag to filter ..." add-from-autocomplete-only="true" class="form-control" key-property="id" display-property="text" ng-disabled="!totalModels">
                         <auto-complete source="loadTags($query)"></auto-complete>
                     </tags-input>
-                    <span class="input-group-btn" ng-if="!loading">
-                        <button  type="submit" class="btn btn-raised btn-primary" ng-disabled="!totalModels"><span class="glyphicon glyphicon-search"></span></button>
-                    </span>
-                    <span class="input-group-addon" ng-if="loading">
-                        <img src="img/ring.gif" width="30" height="30"/>
-                    </span>
                 </div>
-            </form>
-        </div>
-    </div>
+            </div>
+            <div class="form-group">
+                <multiselect ng-model="fileTypesSelected" uib-tooltip="Select files type" options="c for c in fileTypes" data-multiple="true" scroll-after-rows="5" filter-after-rows="5" max-width="100" tabindex="-1"></multiselect>
+            </div>
+            <div class="form-group">
+                <button  ng-disabled="loading" type="submit" class="btn btn-raised btn-primary" ng-disabled="!totalModels"><span class="glyphicon glyphicon-search"></span></button>
+                <img ng-hide="!loading" src="img/ring.gif" width="50" height="50"/>
+            </div>  
+      </form>
+   </div>
     
     <p ng-if="getTotalItems()"><strong ng-if="!loading">Currently viewing {{(currentPage - 1) * itemsPerPage + 1}} - {{getTotalItems()}}</strong></p>
     <div class="table-responsive">
@@ -42,7 +43,7 @@
                     <td class='text-center' colspan='6'>No models found</td>
                 </tr>
                 <tr ng-if="!loading" ng-repeat="model in models">
-                    <td><strong>{{ model.name }}</strong></td>
+                    <td class="text-capitalize"><strong>{{ model.name }}</strong></td>
                     <td>{{model.createAt | date:'dd-MMM-yy HH:mm'}}</td>
                     <td nowrap>{{ model.size/1024/1024|number:2}} MB</td>
                     <td class="text-center" nowrap>

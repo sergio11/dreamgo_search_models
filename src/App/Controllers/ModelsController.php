@@ -28,6 +28,7 @@ class ModelsController
     }
 
     public function get( Request $request, $start,$count){
+        sleep(2);
         $tags = $request->query->get('tags');
         $orderBy = $request->query->get('orderBy');
         return new JsonResponse($this->modelsService->get($start,$count,$tags,$orderBy));

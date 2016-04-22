@@ -68,10 +68,6 @@
     margin: 0;
 }
 
-.table tbody tr td:nth-child(1) {
-    text-transform: capitalize;
-}
-
 
 
 /* Alerts */
@@ -107,6 +103,11 @@
 .row-separate {
     margin-top: 30px;
     margin-bottom: 30px
+}
+
+
+.form-group-taginput {
+    margin-top: 37px;
 }
 
 

@@ -1,7 +1,7 @@
 'use strict';
 
 
-var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
+var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert', 'ui.multiselect'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -382,6 +382,8 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         $scope.tags = [];
         $scope.loading = false;
         $scope.filter = false;
+        $scope.fileTypes = ['Microsoft Word', 'Microsoft Excel', 'XML'];
+        $scope.fileTypesSelected = $scope.fileTypes;
 
         $scope.getModels = function(){
             if($scope.tags.length){

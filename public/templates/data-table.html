@@ -13,7 +13,7 @@
                 <tr class="info" ng-if="!source.length && !addMode">
                     <td class='text-center' colspan='3'>{{noDataMsg}}</td>
                 </tr>
-                <tr ng-repeat="item in source">
+                <tr ng-repeat="item in source" class="text-capitalize">
                     <td ng-if="item.edit"><input type="text" name="name" ng-model="formInputs[item.id].name"/></td>
                     <td ng-if="!item.edit">{{item.name}}</td>
                     <td ng-if="item.edit"><input type="text" name="description" ng-model="formInputs[item.id].description"/></td>

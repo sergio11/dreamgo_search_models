@@ -1,5 +1,5 @@
 <div class="text-center">
-    <div>
+    <div ng-if="model.tags">
         <tags-input ng-model="model.tags" on-tag-removed="remove($tag)">
             <auto-complete source="loadTags($query)"></auto-complete>
         </tags-input>
@@ -16,4 +16,5 @@
             
         </div>
     </div>
+    <img src="img/ring.gif" ng-if="!model.tags" width="100" height="100" />
 </div>
