@@ -468,7 +468,6 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
             tags:{
                 tag: []
             },
-            objetiveFunction: '',
             variables:{
                 input: [],
                 output: []
@@ -489,7 +488,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
 
         //Check Model Validation status.
         $scope.isValid = function(){
-            return ($scope.model.name && $scope.model.objetiveFunction && $scope.model.variables.input.length && $scope.model.variables.output.length) ? true : false;
+            return ($scope.model.name && $scope.model.variables.input.length && $scope.model.variables.output.length) ? true : false;
         }
 
         //Model Error
@@ -512,7 +511,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         
 
     }])
-    .controller('optimizationCtrl', ['$scope', function($scope){
+    .controller('optimizationCtrl', ['$scope', 'TermsService', 'SweetAlert', function($scope, TermsService, SweetAlert){
         
         $scope.model = {
             name: '',

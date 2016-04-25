@@ -28,7 +28,6 @@ class ModelsController
     }
 
     public function get( Request $request, $start,$count){
-        sleep(2);
         $tags = $request->query->get('tags');
         $orderBy = $request->query->get('orderBy');
         return new JsonResponse($this->modelsService->get($start,$count,$tags,$orderBy));
@@ -64,8 +63,13 @@ class ModelsController
         $id = $this->modelsService->save(array('name' => $model['name'], 'filename' => $filename, 'size' => 0));
         //save new tags
         $tags = $this->termsService->saveTags($model['tags']['tag']);
+
         //save model tags
         $this->modelsTaggedService->saveModelTags($tags, $id);
+
+        for($i = 0, $len = count($tags); $i < $len; $i++){
+            $model['tags']['tag'][$i]['id'] = $tags[$i];
+        }
 
         $file  = $app['upload_file_dir'] . $filename;
         $modelXML = $app['serializer']->serialize(array('model' => $model), 'xml');
