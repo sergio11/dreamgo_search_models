@@ -1,7 +1,7 @@
 'use strict';
 
 
-var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert', 'ui.multiselect'])
+var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim-in-out', 'ngTagsInput', 'angularFileUpload', 'oitozero.ngSweetAlert'])
     .config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
 
         $urlRouterProvider.otherwise("/home");
@@ -42,11 +42,11 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
 
         //Save Tags for model
         this.saveTags = function (model, tags) {
-            return $http.post('/models/public/api.php/terms', { 'tags': tags })
+            return $http.post('/api.php/terms', { 'tags': tags })
                 .then(function (response) {
                     var data = response.data;
                     if (!data.error && data.ids.length) {
-                        return $http.post('/models/public/api.php/models/' + model + '/tags', { 'tags': data.ids });
+                        return $http.post('/api.php/models/' + model + '/tags', { 'tags': data.ids });
                     }
 
                 });
@@ -54,21 +54,21 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         
         //Save Prediction Model
         this.savePredictionModel = function(model){
-            return $http.post('/models/public/api.php/prediction-model', {'model': model});
+            return $http.post('/api.php/prediction-model', {'model': model});
         }
 
         //Delete Tags for model
         this.deleteTags = function(model, tags){
-            return $http.delete('/models/public/api.php/models/' + model + '/tags/'+ tags);
+            return $http.delete('/api.php/models/' + model + '/tags/'+ tags);
         }
 
         //Get tags for model
         this.getTags = function (model) {
-            return $http.get('/models/public/api.php/models/' + model + '/tags');
+            return $http.get('/api.php/models/' + model + '/tags');
         }
         //Get all Models
         this.getModels = function (start, count, tags, orderBy) {
-            return $http.get('/models/public/api.php/models/' + start + '/' + count, {
+            return $http.get('/api.php/models/' + start + '/' + count, {
                 params:{
                     tags: tags,
                     orderBy: orderBy
@@ -77,18 +77,18 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         }
         //Get Total Models
         this.getCountModels = function () {
-            return $http.get('/models/public/api.php/models/count');
+            return $http.get('/api.php/models/count');
         }
         
         this.deleteModel = function(idModel){
-            return $http.delete('/models/public/api.php/models/'+idModel);
+            return $http.delete('/api.php/models/'+idModel);
         }
 
     } ])
     .service('TermsService', ['$http', function($http){
         
         this.getMatchingTerms = function(text){
-            return $http.get('/models/public/api.php/terms/' + text);
+            return $http.get('/api.php/terms/' + text);
         }
         
     }]);
@@ -184,8 +184,6 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
             },
             template: "<a href='javascript:void(0)' class='btn btn-raised btn-success' ng-disabled='!enable()'>Save</a>",
             controller: ['$scope',  'ModelsService', function($scope, ModelsService){
-
-                console.log("Enable : ", $scope.enable());
                 //Save Model
                 $scope.saveModel = function(){
                     ModelsService.savePredictionModel($scope.model)
@@ -326,7 +324,7 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         $scope.alerts = [];
         $scope.models = [];
         $scope.uploader = new FileUploader({
-            url: '/models/public/api.php/models'
+            url: '/api.php/models'
         });
 
         // Upload custom filter
@@ -354,6 +352,21 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
         $scope.closeAlert = function (index) {
             $scope.alerts.splice(index, 1);
         };
+
+        $scope.remove = function(idxModel,item){
+            var id = $scope.models[idxModel].id;
+            ModelsService.deleteModel(id).then(function(response){
+                var data = response.data;
+                if(data.error == false){
+                    $scope.models.splice(idxModel,1);
+                    item.remove();
+                    SweetAlert.swal("Deleted!", data.msg, "success");
+                }else{
+                    SweetAlert.swal("Failed!", data.msg, "error");
+                }
+                           
+           });
+        }
 
 
         // File adding failed.
@@ -443,7 +456,8 @@ var app = angular.module('app', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'anim
                        ModelsService.deleteModel(model.id).then(function(response){
                            var data = response.data;
                            if(data.error == false){
-                               $scope.models.splice(idx,1);
+                               $scope.getModels();
+                               $scope.totalModels -= 1;
                                SweetAlert.swal("Deleted!", data.msg, "success");
                            }else{
                                SweetAlert.swal("Failed!", data.msg, "error");
